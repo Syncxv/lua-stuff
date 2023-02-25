@@ -9,11 +9,8 @@ const main = async ()=> {
     const mainContent = requireFile(entryPoinnt)
 
     const final = `
-    local function find_by_name(t, name) for _, v in pairs(t) do if v.name == name then return v end end end
 
-    local actor = find_by_name(getactors(), 'lol')
-
-    syn.run_on_actor(actor, [[
+    syn.run_on_actor(getactors()[1], [[
         ${mainContent}
     ]]);
     

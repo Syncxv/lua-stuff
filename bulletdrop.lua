@@ -7,6 +7,7 @@ local PublicSettings = shared.require("PublicSettings");
 local Physics = shared.require("physics");
 local CameraInterface = shared.require("CameraInterface");
 local HudScreenGui = shared.require("HudScreenGui")
+local ScreenGui = HudScreenGui.getScreenGui()
 local UIScale = HudScreenGui.getUIScale()
 local LocalPlayer = game:GetService("Players").LocalPlayer;
 local CurrentCamera = workspace.CurrentCamera
@@ -15,9 +16,12 @@ local CurrentCamera = workspace.CurrentCamera
 -- print(u6.getEntry(localPlayer));
 --         for i,v in pairs(u6) do print(i) end
 
+
 local firearmSight = shared.require("FirearmSight")
 
-_G.oldFirearmSight = firearmSight.new
+if(_G.oldFirearmSight == nil) then
+    _G.oldFirearmSight = firearmSight.new
+end
 
 firearmSight.new = function(p1, p2)
     -- print(p1, p2);

@@ -19,10 +19,40 @@ local shared = getrenv().shared
 local camera = workspace.CurrentCamera
 local mouseLocation = UserInputService.GetMouseLocation
 local WorldToViewportPoint = camera.WorldToViewportPoint
+local ReplicationInterface = shared.require("ReplicationInterface");
+local PublicSettings = shared.require("PublicSettings");
+local Physics = shared.require("physics");
+local CameraInterface = shared.require("CameraInterface");
+local HudScreenGui = shared.require("HudScreenGui")
+local UIScale = HudScreenGui.getUIScale()
+local LocalPlayer = game:GetService("Players").LocalPlayer;
+local CurrentCamera = workspace.CurrentCamera
+local ScreenGui = HudScreenGui.getScreenGui()
+
+
+local _size = 0.009259259259259259
+
+
 
 -- modules
 local replicationObject = shared.require("ReplicationObject")
 local replicationInterface = shared.require("ReplicationInterface")
+
+local firearmSight = shared.require("FirearmSight")
+
+if(_G.oldFirearmSight == nil) then
+    _G.oldFirearmSight = firearmSight.new
+end
+
+firearmSight.new = function(p1, p2)
+    -- print(p1, p2);
+    
+    _G.firearmObject = p1;
+    
+    return _G.oldFirearmSight(p1, p2);
+end;
+
+
 
 -- functions
 local function isAlive(entry)
@@ -38,6 +68,31 @@ local function isVisible(p, ...)
 end
 
 
+local function get_pos(player)
+    local pos = nil;
+    local trajectory = nil;
+    local activeCamera = CameraInterface.getActiveCamera("MainCamera")
+    
+    local cameraPosition = activeCamera:getCFrame().p
+    local playerPosition, isPlayerPositionValid = ReplicationInterface.getEntry(player):getPosition()
+
+    if isPlayerPositionValid then
+        trajectory = Physics.trajectory(cameraPosition, PublicSettings.bulletAcceleration, playerPosition, _G.firearmObject:getWeaponStat("bulletspeed"))
+    end
+                -- for i,v in pairs(v13) do print(i) end
+    if trajectory then
+        pos =  CurrentCamera:WorldToViewportPoint(cameraPosition + trajectory)
+    end
+
+
+    return pos
+end
+
+
+local function get_current_pos()
+    return client.Character.HumanoidRootPart.Position
+end
+
 local function get_closest(fov)
     local targetPos = nil
     local magnitude = fov or math.huge
@@ -51,17 +106,28 @@ local function get_closest(fov)
 
         if character and isAlive(entry) then
             local body_parts = character:getCharacterHash()
-
+            
             local screen_pos, on_screen = WorldToViewportPoint(camera, body_parts.head.Position)
             local screen_pos_2D = Vector2.new(screen_pos.X, screen_pos.Y)
             local new_magnitude = (screen_pos_2D - mouseLocation(UserInputService)).Magnitude
             if
-                on_screen
-                and new_magnitude < magnitude
-                and isVisible(body_parts.head.Position, body_parts.torso.Parent)
+            on_screen
+            and new_magnitude < magnitude
+            and isVisible(body_parts.head.Position, body_parts.torso.Parent)
             then
+
                 magnitude = new_magnitude
                 targetPos = body_parts.head.Position
+                print("distance = ", (get_current_pos() - targetPos).Magnitude)
+                
+                -- local pos = get_pos(player);
+                -- print("pos = ", pos);
+                -- local dotSize = _size / 2 * ScreenGui.AbsoluteSize.y
+                -- local res = Vector2.new(
+                --     pos.X / UIScale - dotSize,
+                --     pos.Y / UIScale - dotSize
+                -- )
+                -- targetPos = body_parts.head.Position 
             end
         end
     end
@@ -86,6 +152,7 @@ RunService.RenderStepped:Connect(function()
     if UserInputService:IsKeyDown(Enum.KeyCode.RightBracket) then
         local _pos = get_closest(getgenv().AIMBOT_SETTINGS.FOV)
         if _pos then
+            print("pos = ", _pos)
             aimAt(_pos, getgenv().AIMBOT_SETTINGS.smoothness)
         end
     end
@@ -94,3 +161,7 @@ RunService.RenderStepped:Connect(function()
         circle.Radius = getgenv().AIMBOT_SETTINGS.FOV
     end
 end)
+
+
+
+
