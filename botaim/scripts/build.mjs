@@ -11,7 +11,7 @@ const main = async ()=> {
     const final = `
 
     syn.run_on_actor(getactors()[1], [[
-        ${mainContent}
+        ${mainContent.replaceAll(/]]/g, ']] .. "]]" .. [[')}
     ]]);
     
 `

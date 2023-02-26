@@ -2,7 +2,9 @@ if not getgenv or not mousemoverel then
     game:GetService("Players").LocalPlayer:Kick("Your exploit is not supported!")
 end
 
+local id = math.random(1, 1000000);
 getgenv().AIMBOT_SETTINGS = {
+    id = id,
     smoothness = 2,
     FOV = 75,
     VisibleCheck = true,
@@ -28,6 +30,7 @@ local UIScale = HudScreenGui.getUIScale()
 local LocalPlayer = game:GetService("Players").LocalPlayer;
 local CurrentCamera = workspace.CurrentCamera
 local ScreenGui = HudScreenGui.getScreenGui()
+local CoreGui = game:GetService("CoreGui")
 
 
 local _size = 0.009259259259259259
@@ -53,8 +56,26 @@ firearmSight.new = function(p1, p2)
 end;
 
 
+--ui stuff
+
+
+local AimPoint = Drawing.new("Circle")
+AimPoint.Thickness = 2
+AimPoint.NumSides = 12
+AimPoint.Radius = 2
+AimPoint.Filled = true
+AimPoint.Transparency = 1
+AimPoint.Color = Color3.new(math.random(), math.random(), math.random())
+AimPoint.Visible = true
 
 -- functions
+local ShowUIElement = function(Element, Enabled)
+	Element.Visible = Enabled
+	for _, v in next, Element:GetDescendants() do
+		v.Visible = Enabled
+	end
+end
+
 local function isAlive(entry)
     return replicationObject.isAlive(entry)
 end
@@ -81,7 +102,7 @@ local function get_pos(player)
     end
                 -- for i,v in pairs(v13) do print(i) end
     if trajectory then
-        pos =  CurrentCamera:WorldToViewportPoint(cameraPosition + trajectory)
+        pos =  CurrentCamera:WorldToScreenPoint(cameraPosition + trajectory)
     end
 
 
@@ -92,6 +113,8 @@ end
 local function get_current_pos()
     return client.Character.HumanoidRootPart.Position
 end
+
+local Mouse = players.LocalPlayer:GetMouse()
 
 local function get_closest(fov)
     local targetPos = nil
@@ -117,8 +140,11 @@ local function get_closest(fov)
             then
 
                 magnitude = new_magnitude
-                targetPos = body_parts.head.Position
-                print("distance = ", (get_current_pos() - targetPos).Magnitude)
+                local BallisticPos = get_pos(player);
+                local PartPos = CurrentCamera:WorldToScreenPoint(body_parts.head.Position)
+                local res = Vector2.new(PartPos.X, PartPos.Y - math.abs(PartPos.Y - BallisticPos.Y) * 0.9)
+                AimPoint.Position = res
+                targetPos = res;
                 
                 -- local pos = get_pos(player);
                 -- print("pos = ", pos);
@@ -135,9 +161,9 @@ local function get_closest(fov)
 end
 local mouse = client:GetMouse()
 local function aimAt(pos, smooth)
-    local targetPos = camera:WorldToScreenPoint(pos)
+    local targetPos = (pos)
     local mousePos = camera:WorldToScreenPoint(mouse.Hit.p)
-    mousemoverel((targetPos.X - mousePos.X) / smooth, (targetPos.Y - mousePos.Y) / smooth)
+    mousemoverel((targetPos.X - mousePos.X), (targetPos.Y - mousePos.Y))
 end
 local circle = Drawing.new("Circle")
 circle.Thickness = 2
@@ -145,10 +171,18 @@ circle.NumSides = 12
 circle.Radius = 350
 circle.Filled = false
 circle.Transparency = 1
-circle.Color = Color3.new(1, 0.5, 0)
+circle.Color = Color3.new(math.random(), math.random(), math.random())
 circle.Visible = true
 
 RunService.RenderStepped:Connect(function()
+    if id ~= getgenv().AIMBOT_SETTINGS.id then
+        if circle.__OBJECT_EXISTS then
+            print("stopping this instance of aimbot", id, getgenv().AIMBOT_SETTINGS.id)
+            circle:Remove()
+            AimPoint:Remove()
+        end
+        return
+    end
     if UserInputService:IsKeyDown(Enum.KeyCode.RightBracket) then
         local _pos = get_closest(getgenv().AIMBOT_SETTINGS.FOV)
         if _pos then
@@ -161,7 +195,3 @@ RunService.RenderStepped:Connect(function()
         circle.Radius = getgenv().AIMBOT_SETTINGS.FOV
     end
 end)
-
-
-
-
