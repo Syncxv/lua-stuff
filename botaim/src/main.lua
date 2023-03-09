@@ -16,7 +16,7 @@ local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 
 -- variables
-local client = players.LocalPlayer
+local client = game:GetService("Players").LocalPlayer;
 local shared = getrenv().shared
 local camera = workspace.CurrentCamera
 local mouseLocation = UserInputService.GetMouseLocation
@@ -31,7 +31,7 @@ local LocalPlayer = game:GetService("Players").LocalPlayer;
 local CurrentCamera = workspace.CurrentCamera
 local ScreenGui = HudScreenGui.getScreenGui()
 local CoreGui = game:GetService("CoreGui")
-
+local gameClock = shared.require("GameClock")
 
 local _size = 0.009259259259259259
 
@@ -69,11 +69,12 @@ AimPoint.Color = Color3.new(math.random(), math.random(), math.random())
 AimPoint.Visible = true
 
 -- functions
-local ShowUIElement = function(Element, Enabled)
-	Element.Visible = Enabled
-	for _, v in next, Element:GetDescendants() do
-		v.Visible = Enabled
-	end
+local function GetDistance (to, from) 
+    local deltaX = to.X - from.X;
+    local deltaY = to.Y - from.Y;
+    local deltaZ = to.Z - from.Z;
+
+    return math.sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
 end
 
 local function isAlive(entry)
@@ -89,7 +90,7 @@ local function isVisible(p, ...)
 end
 
 
-local function get_pos(player)
+local function get_bal_pos(player)
     local pos = nil;
     local trajectory = nil;
     local activeCamera = CameraInterface.getActiveCamera("MainCamera")
@@ -104,17 +105,43 @@ local function get_pos(player)
     if trajectory then
         pos =  CurrentCamera:WorldToScreenPoint(cameraPosition + trajectory)
     end
-
-
+    
+    
     return pos
 end
-
 
 local function get_current_pos()
     return client.Character.HumanoidRootPart.Position
 end
 
+local function get_prediction_pos(entry, character)
+
+    local speed = _G.firearmObject:getWeaponStat("bulletspeed")
+
+    local cFrame = entry._smoothReplication:getFrame(gameClock.getTime())
+    local TargetVelocity = cFrame.velocity
+    local TargetLocation = character:getCharacterHash().head.Position
+    
+    local CurrentPosition = get_current_pos()
+
+    
+    local TravelTime = GetDistance(CurrentPosition, TargetLocation) / speed;
+    print("CURRENT POS = ",CurrentPosition, "TARGET POS = ", TargetLocation, "TARGET VELOCITY = ", TargetVelocity, "SPEED = ", speed, "TRAVEL TIME = ", TravelTime, "TIME = ", gameClock.getTime(), "CFRAME = ", cFrame)
+        
+    local PredictedLocation = Vector3.new(
+        (TargetLocation.X + TargetVelocity.X * TravelTime),
+        (TargetLocation.Y + TargetVelocity.Y * TravelTime),
+		TargetLocation.Z
+    )
+
+    return CurrentCamera:WorldToScreenPoint(PredictedLocation)
+end
+
+
+
 local Mouse = players.LocalPlayer:GetMouse()
+
+
 
 local function get_closest(fov)
     local targetPos = nil
@@ -140,11 +167,9 @@ local function get_closest(fov)
             then
 
                 magnitude = new_magnitude
-                local BallisticPos = get_pos(player);
-                local PartPos = CurrentCamera:WorldToScreenPoint(body_parts.head.Position)
-                local res = Vector2.new(PartPos.X, PartPos.Y - math.abs(PartPos.Y - BallisticPos.Y) * 0.9)
-                AimPoint.Position = res
+                local res = get_prediction_pos(entry, character);
                 targetPos = res;
+                AimPoint.Position = Vector2.new(res.X, res.Y)
                 
                 -- local pos = get_pos(player);
                 -- print("pos = ", pos);
