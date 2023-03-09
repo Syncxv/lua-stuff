@@ -5,7 +5,7 @@ end
 local id = math.random(1, 1000000);
 getgenv().AIMBOT_SETTINGS = {
     id = id,
-    smoothness = 2,
+    smoothness = 6,
     FOV = 75,
     VisibleCheck = true,
 }
@@ -41,18 +41,19 @@ local _size = 0.009259259259259259
 local replicationObject = shared.require("ReplicationObject")
 local replicationInterface = shared.require("ReplicationInterface")
 
-local firearmSight = shared.require("FirearmSight")
+local firearmObject = shared.require("FirearmObject")
 
-if(_G.oldFirearmSight == nil) then
-    _G.oldFirearmSight = firearmSight.new
+if(_G.oldFirearmObject == nil) then
+    _G.oldFirearmObject = firearmObject.new
 end
 
-firearmSight.new = function(p1, p2)
+firearmObject.new = function(...)
     -- print(p1, p2);
+    local res = _G.oldFirearmObject(...);
     
-    _G.firearmObject = p1;
-    
-    return _G.oldFirearmSight(p1, p2);
+    _G.firearmObject = res;
+
+    return res; 
 end;
 
 
@@ -115,24 +116,31 @@ local function get_current_pos()
 end
 
 local function get_prediction_pos(entry, character)
+    local activeCamera = CameraInterface.getActiveCamera("MainCamera") 
 
     local speed = _G.firearmObject:getWeaponStat("bulletspeed")
 
     local cFrame = entry._smoothReplication:getFrame(gameClock.getTime())
     local TargetVelocity = cFrame.velocity
-    local TargetLocation = character:getCharacterHash().head.Position
-    
-    local CurrentPosition = get_current_pos()
 
-    
+    local minVelocityY = 0.001 -- set a minimum Y velocity value
+    if math.abs(TargetVelocity.Y) < minVelocityY then
+        TargetVelocity = Vector3.new(TargetVelocity.X, minVelocityY, TargetVelocity.Z)
+    end
+
+    local TargetLocation = character:getCharacterHash().head.Position
+
+    local CurrentPosition = get_current_pos();
+
     local TravelTime = GetDistance(CurrentPosition, TargetLocation) / speed;
-    print("CURRENT POS = ",CurrentPosition, "TARGET POS = ", TargetLocation, "TARGET VELOCITY = ", TargetVelocity, "SPEED = ", speed, "TRAVEL TIME = ", TravelTime, "TIME = ", gameClock.getTime(), "CFRAME = ", cFrame)
         
     local PredictedLocation = Vector3.new(
         (TargetLocation.X + TargetVelocity.X * TravelTime),
         (TargetLocation.Y + TargetVelocity.Y * TravelTime),
 		TargetLocation.Z
     )
+
+    print("TARGET VELOCITY = ", TargetVelocity, "\n\n\n", "PREDICTED LOCATION = ", PredictedLocation, "\n\n\n", "CURRENT LOCATION = ", CurrentPosition)
 
     return CurrentCamera:WorldToScreenPoint(PredictedLocation)
 end
