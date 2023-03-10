@@ -5,7 +5,7 @@ end
 local id = math.random(1, 1000000);
 getgenv().AIMBOT_SETTINGS = {
     id = id,
-    smoothness = 6,
+    smoothness = 3,
     FOV = 75,
     VisibleCheck = true,
 }
@@ -50,8 +50,13 @@ end
 firearmObject.new = function(...)
     -- print(p1, p2);
     local res = _G.oldFirearmObject(...);
-    
-    _G.firearmObject = res;
+
+    local args = {...}
+        if args[1] == 1 then
+        print("new weapon" .. args[2])
+        
+        _G.firearmObject = res;
+    end
 
     return res; 
 end;
@@ -123,24 +128,22 @@ local function get_prediction_pos(entry, character)
     local cFrame = entry._smoothReplication:getFrame(gameClock.getTime())
     local TargetVelocity = cFrame.velocity
 
-    local minVelocityY = 0.001 -- set a minimum Y velocity value
-    if math.abs(TargetVelocity.Y) < minVelocityY then
-        TargetVelocity = Vector3.new(TargetVelocity.X, minVelocityY, TargetVelocity.Z)
-    end
-
     local TargetLocation = character:getCharacterHash().head.Position
 
     local CurrentPosition = get_current_pos();
 
-    local TravelTime = GetDistance(CurrentPosition, TargetLocation) / speed;
-        
-    local PredictedLocation = Vector3.new(
-        (TargetLocation.X + TargetVelocity.X * TravelTime),
-        (TargetLocation.Y + TargetVelocity.Y * TravelTime),
-		TargetLocation.Z
-    )
+    local Distance = GetDistance(CurrentPosition, TargetLocation);
 
-    print("TARGET VELOCITY = ", TargetVelocity, "\n\n\n", "PREDICTED LOCATION = ", PredictedLocation, "\n\n\n", "CURRENT LOCATION = ", CurrentPosition)
+    -- local minDistance = 10 -- set a minimum distance value
+    -- if Distance < minDistance then
+    --     print("close range is inaccurate and will be skipped")
+    --     return CurrentCamera:WorldToScreenPoint(TargetLocation) -- prediction is not accurate for short distances
+    -- end
+
+    local TravelTime = Distance / speed;
+        
+    local PredictedLocation = TargetLocation + TargetVelocity * TravelTime
+    print("\n\n\n", "TravelTime = ", TravelTime, "\n\n\n", "TARGET VELOCITY = ", TargetVelocity, "\n\n\n", "PREDICTED LOCATION = ", PredictedLocation, "\n\n\n", "CURRENT LOCATION = ", CurrentPosition)
 
     return CurrentCamera:WorldToScreenPoint(PredictedLocation)
 end
