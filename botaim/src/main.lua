@@ -6,8 +6,9 @@ local id = math.random(1, 1000000);
 getgenv().AIMBOT_SETTINGS = {
     id = id,
     smoothness = 3,
-    FOV = 75,
+    FOV = 150,
     VisibleCheck = true,
+    PredictBulletDrop = false,
 }
 
 -- services
@@ -75,6 +76,24 @@ AimPoint.Color = Color3.new(math.random(), math.random(), math.random())
 AimPoint.Visible = true
 
 -- functions
+
+local function createText(bruh, position)
+    local text = Drawing.new("Text");
+
+    text.Visible = true
+    text.Transparency = 1
+    text.ZIndex = 1
+    text.Color = Color3.fromRGB(255, 255, 255);
+    text.Position = position
+    text.Text = bruh;
+    coroutine.wrap(function()
+        game.RunService.RenderStepped:Wait()
+        text:Remove() --destroy after a frame because we make new part on frame
+    end)()
+    return text
+end
+
+
 local function GetDistance (to, from) 
     local deltaX = to.X - from.X;
     local deltaY = to.Y - from.Y;
@@ -109,7 +128,9 @@ local function get_bal_pos(player)
     end
                 -- for i,v in pairs(v13) do print(i) end
     if trajectory then
-        pos =  CurrentCamera:WorldToScreenPoint(cameraPosition + trajectory)
+        local closestPlayerDot =  CurrentCamera:WorldToScreenPoint(cameraPosition + trajectory)
+        pos = Vector2.new(closestPlayerDot.x / UIScale - _size, closestPlayerDot.y / UIScale - _size);
+
     end
     
     
@@ -121,7 +142,7 @@ local function get_current_pos()
 end
 
 local function get_prediction_pos(entry, character)
-    local activeCamera = CameraInterface.getActiveCamera("MainCamera") 
+    -- local activeCamera = CameraInterface.getActiveCamera("MainCamera") 
 
     local speed = _G.firearmObject:getWeaponStat("bulletspeed")
 
@@ -143,17 +164,21 @@ local function get_prediction_pos(entry, character)
     local TravelTime = Distance / speed;
         
     local PredictedLocation = TargetLocation + TargetVelocity * TravelTime
-    print("\n\n\n", "TravelTime = ", TravelTime, "\n\n\n", "TARGET VELOCITY = ", TargetVelocity, "\n\n\n", "PREDICTED LOCATION = ", PredictedLocation, "\n\n\n", "CURRENT LOCATION = ", CurrentPosition)
+    print("\n\n\n------------","\n\n\n", "TravelTime = ", TravelTime, "\n\n\n", "TARGET VELOCITY = ", TargetVelocity, "\n\n\n", "PREDICTED LOCATION = ", PredictedLocation, "\n\n\n", "CURRENT LOCATION = ", CurrentPosition,"------------\n\n\n")
 
     return CurrentCamera:WorldToScreenPoint(PredictedLocation)
 end
 
 
 
-local Mouse = players.LocalPlayer:GetMouse()
+-- local max_distance = 2000  -- maximum distance for bullet drop compensation
+-- local min_distance = 50  -- minimum distance for bullet drop compensation
+-- local max_bullet_drop = 50  -- maximum bullet drop compensation in pixels
+-- local min_bullet_drop = 0  -- minimum bullet drop compensation in pixels
 
-
-
+-- local function lerp(a, b, t)
+--     return a + (b - a) * t
+-- end
 local function get_closest(fov)
     local targetPos = nil
     local magnitude = fov or math.huge
@@ -179,6 +204,15 @@ local function get_closest(fov)
 
                 magnitude = new_magnitude
                 local res = get_prediction_pos(entry, character);
+
+                if getgenv().AIMBOT_SETTINGS.PredictBulletDrop then
+                    local distance = GetDistance(get_current_pos(), body_parts.head.Position);
+                    local ballistic_pos = get_bal_pos(player)
+                    if ballistic_pos then
+                        res = Vector2.new(res.X, res.Y - math.abs(res.Y - res.Y) * 0.9)
+                        print("\n\n","BALLISTIC POS = ", ballistic_pos, "\n\n", "RES = ", res, "\n\n", "DISTANCE = ", distance, "\n\n")
+                    end
+                end
                 targetPos = res;
                 AimPoint.Position = Vector2.new(res.X, res.Y)
                 
@@ -210,6 +244,8 @@ circle.Transparency = 1
 circle.Color = Color3.new(math.random(), math.random(), math.random())
 circle.Visible = true
 
+local margin = 20;
+local screenWidth = game.Players.LocalPlayer:GetMouse().ViewSizeX
 RunService.RenderStepped:Connect(function()
     if id ~= getgenv().AIMBOT_SETTINGS.id then
         if circle.__OBJECT_EXISTS then
@@ -219,6 +255,7 @@ RunService.RenderStepped:Connect(function()
         end
         return
     end
+
     if UserInputService:IsKeyDown(Enum.KeyCode.RightBracket) then
         local _pos = get_closest(getgenv().AIMBOT_SETTINGS.FOV)
         if _pos then
@@ -227,7 +264,25 @@ RunService.RenderStepped:Connect(function()
         end
     end
     if circle.__OBJECT_EXISTS then
+        if getgenv().AIMBOT_SETTINGS.PredictBulletDrop then
+            createText("Bullet Drop Enabled", Vector2.new(screenWidth - 150, 0 * margin))
+        else
+            createText("Bullet Drop Disabled", Vector2.new(screenWidth - 150, 0 * margin))
+        end
         circle.Position = mouseLocation(UserInputService)
         circle.Radius = getgenv().AIMBOT_SETTINGS.FOV
     end
+    
+end)
+
+local uis = game:GetService("UserInputService")
+
+uis.InputBegan:Connect(function(input)
+    if (uis:GetFocusedTextBox()) then
+        return; -- make sure player's not chatting!
+    end
+    if input.KeyCode == Enum.KeyCode.LeftAlt then
+        getgenv().AIMBOT_SETTINGS.PredictBulletDrop = not getgenv().AIMBOT_SETTINGS.PredictBulletDrop
+    end
+
 end)
