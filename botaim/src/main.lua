@@ -8,7 +8,7 @@ getgenv().AIMBOT_SETTINGS = {
     smoothness = 3,
     FOV = 150,
     VisibleCheck = true,
-    PredictBulletDrop = false,
+    PredictBulletDrop = true,
 }
 
 -- services
@@ -27,11 +27,7 @@ local PublicSettings = shared.require("PublicSettings");
 local Physics = shared.require("physics");
 local CameraInterface = shared.require("CameraInterface");
 local HudScreenGui = shared.require("HudScreenGui")
-local UIScale = HudScreenGui.getUIScale()
-local LocalPlayer = game:GetService("Players").LocalPlayer;
 local CurrentCamera = workspace.CurrentCamera
-local ScreenGui = HudScreenGui.getScreenGui()
-local CoreGui = game:GetService("CoreGui")
 local gameClock = shared.require("GameClock")
 
 local _size = 0.009259259259259259
@@ -44,7 +40,7 @@ local replicationInterface = shared.require("ReplicationInterface")
 
 local firearmObject = shared.require("FirearmObject")
 
-if(_G.oldFirearmObject == nil) then
+if (_G.oldFirearmObject == nil) then
     _G.oldFirearmObject = firearmObject.new
 end
 
@@ -52,14 +48,14 @@ firearmObject.new = function(...)
     -- print(p1, p2);
     local res = _G.oldFirearmObject(...);
 
-    local args = {...}
-        if args[1] == 1 then
+    local args = { ... }
+    if args[1] == 1 then
         print("new weapon" .. args[2])
-        
+
         _G.firearmObject = res;
     end
 
-    return res; 
+    return res;
 end;
 
 
@@ -94,7 +90,7 @@ local function createText(bruh, position)
 end
 
 
-local function GetDistance (to, from) 
+local function GetDistance(to, from)
     local deltaX = to.X - from.X;
     local deltaY = to.Y - from.Y;
     local deltaZ = to.Z - from.Z;
@@ -114,26 +110,26 @@ local function isVisible(p, ...)
     return #camera:GetPartsObscuringTarget({ p }, { camera, client.Character, workspace.Ignore, ... }) == 0
 end
 
-
 local function get_bal_pos(player)
     local pos = nil;
     local trajectory = nil;
     local activeCamera = CameraInterface.getActiveCamera("MainCamera")
-    
+
     local cameraPosition = activeCamera:getCFrame().p
     local playerPosition, isPlayerPositionValid = ReplicationInterface.getEntry(player):getPosition()
 
     if isPlayerPositionValid then
-        trajectory = Physics.trajectory(cameraPosition, PublicSettings.bulletAcceleration, playerPosition, _G.firearmObject:getWeaponStat("bulletspeed"))
+        trajectory = Physics.trajectory(cameraPosition, PublicSettings.bulletAcceleration, playerPosition,
+        _G.firearmObject:getWeaponStat("bulletspeed"))
     end
-                -- for i,v in pairs(v13) do print(i) end
+    -- for i,v in pairs(v13) do print(i) end
     if trajectory then
-        local closestPlayerDot =  CurrentCamera:WorldToScreenPoint(cameraPosition + trajectory)
-        pos = Vector2.new(closestPlayerDot.x / UIScale - _size, closestPlayerDot.y / UIScale - _size);
-
+        local hehe = cameraPosition + trajectory
+        print("BAL POS REAL = ", hehe)
+        pos = CurrentCamera:WorldToViewportPoint(hehe)
     end
-    
-    
+
+
     return pos
 end
 
@@ -142,7 +138,7 @@ local function get_current_pos()
 end
 
 local function get_prediction_pos(entry, character)
-    -- local activeCamera = CameraInterface.getActiveCamera("MainCamera") 
+    -- local activeCamera = CameraInterface.getActiveCamera("MainCamera")
 
     local speed = _G.firearmObject:getWeaponStat("bulletspeed")
 
@@ -162,9 +158,11 @@ local function get_prediction_pos(entry, character)
     -- end
 
     local TravelTime = Distance / speed;
-        
+
     local PredictedLocation = TargetLocation + TargetVelocity * TravelTime
-    print("\n\n\n------------","\n\n\n", "TravelTime = ", TravelTime, "\n\n\n", "TARGET VELOCITY = ", TargetVelocity, "\n\n\n", "PREDICTED LOCATION = ", PredictedLocation, "\n\n\n", "CURRENT LOCATION = ", CurrentPosition,"------------\n\n\n")
+    print("\n\n\n------------", "\n\n\n", "TravelTime = ", TravelTime, "\n\n\n", "TARGET VELOCITY = ", TargetVelocity,
+    "\n\n\n", "PREDICTED LOCATION = ", PredictedLocation, "\n\n\n", "CURRENT LOCATION = ", CurrentPosition,
+    "\n\n\n------------\n\n\n")
 
     return CurrentCamera:WorldToScreenPoint(PredictedLocation)
 end
@@ -192,30 +190,30 @@ local function get_closest(fov)
 
         if character and isAlive(entry) then
             local body_parts = character:getCharacterHash()
-            
+
             local screen_pos, on_screen = WorldToViewportPoint(camera, body_parts.head.Position)
             local screen_pos_2D = Vector2.new(screen_pos.X, screen_pos.Y)
             local new_magnitude = (screen_pos_2D - mouseLocation(UserInputService)).Magnitude
             if
-            on_screen
-            and new_magnitude < magnitude
-            and isVisible(body_parts.head.Position, body_parts.torso.Parent)
+                on_screen
+                and new_magnitude < magnitude
+                and isVisible(body_parts.head.Position, body_parts.torso.Parent)
             then
-
                 magnitude = new_magnitude
                 local res = get_prediction_pos(entry, character);
 
                 if getgenv().AIMBOT_SETTINGS.PredictBulletDrop then
                     local distance = GetDistance(get_current_pos(), body_parts.head.Position);
-                    local ballistic_pos = get_bal_pos(player)
+                    local ballistic_pos = (get_bal_pos(player))
                     if ballistic_pos then
-                        res = Vector2.new(res.X, res.Y - math.abs(res.Y - res.Y) * 0.9)
-                        print("\n\n","BALLISTIC POS = ", ballistic_pos, "\n\n", "RES = ", res, "\n\n", "DISTANCE = ", distance, "\n\n")
+                        res = Vector2.new(res.X, ballistic_pos.Y - (ballistic_pos.Y - res.Y))
+                        print("\n\n", "BALLISTIC POS = ", ballistic_pos, "\n\n", "RES = ", res, "\n\n", "DISTANCE = ",
+                        distance, "\n\n")
                     end
                 end
                 targetPos = res;
                 AimPoint.Position = Vector2.new(res.X, res.Y)
-                
+
                 -- local pos = get_pos(player);
                 -- print("pos = ", pos);
                 -- local dotSize = _size / 2 * ScreenGui.AbsoluteSize.y
@@ -223,17 +221,33 @@ local function get_closest(fov)
                 --     pos.X / UIScale - dotSize,
                 --     pos.Y / UIScale - dotSize
                 -- )
-                -- targetPos = body_parts.head.Position 
+                -- targetPos = body_parts.head.Position
             end
         end
     end
     return targetPos
 end
-local mouse = client:GetMouse()
 local function aimAt(pos, smooth)
-    local targetPos = (pos)
-    local mousePos = camera:WorldToScreenPoint(mouse.Hit.p)
-    mousemoverel((targetPos.X - mousePos.X), (targetPos.Y - mousePos.Y))
+    local targetPos = pos
+    local mousePos = mouseLocation(UserInputService)
+    local smoothFactor = smooth or 1
+    local deltaX = (targetPos.X - mousePos.X) / smoothFactor
+    local deltaY = (targetPos.Y - mousePos.Y) / smoothFactor
+    local cameraFov = camera.FieldOfView
+    local viewportSize = camera.ViewportSize
+
+    local aspectRatio = viewportSize.X / viewportSize.Y
+    local adjustedDeltaX = deltaX * aspectRatio
+    local adjustedDeltaY = deltaY
+
+    print("mousePos:", mousePos)
+    print("targetPos:", targetPos)
+    print("deltaX:", deltaX)
+    print("deltaY:", deltaY)
+    print("adjustedDeltaX:", adjustedDeltaX)
+    print("adjustedDeltaY:", adjustedDeltaY)
+
+    mousemoverel(adjustedDeltaX, adjustedDeltaY)
 end
 local circle = Drawing.new("Circle")
 circle.Thickness = 2
@@ -272,17 +286,15 @@ RunService.RenderStepped:Connect(function()
         circle.Position = mouseLocation(UserInputService)
         circle.Radius = getgenv().AIMBOT_SETTINGS.FOV
     end
-    
 end)
 
 local uis = game:GetService("UserInputService")
 
 uis.InputBegan:Connect(function(input)
-    if (uis:GetFocusedTextBox()) then
+    if (uis:GetFocusedTextBox() or id ~= getgenv().AIMBOT_SETTINGS.id) then
         return; -- make sure player's not chatting!
     end
     if input.KeyCode == Enum.KeyCode.LeftAlt then
         getgenv().AIMBOT_SETTINGS.PredictBulletDrop = not getgenv().AIMBOT_SETTINGS.PredictBulletDrop
     end
-
 end)

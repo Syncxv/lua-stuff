@@ -1,17 +1,22 @@
 import fs from 'node:fs'
 import * as path from 'node:path'
 import { fileURLToPath } from 'url';
-
+import crypto from 'node:crypto'
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const main = async ()=> {
     const entryPoinnt = path.resolve(__dirname, '..', 'src', 'main.lua');
 
     const mainContent = requireFile(entryPoinnt)
+    const cleanedMainContent = mainContent.replaceAll(/]]/g, ']] .. "]]" .. [[')
+
+    //get hash of content
+    const hash = crypto.createHash('sha256').update(mainContent).digest('hex');
 
     const final = `
+    -- ${hash}
 
     syn.run_on_actor(getactors()[1], [[
-        ${mainContent.replaceAll(/]]/g, ']] .. "]]" .. [[')}
+        ${cleanedMainContent}
     ]]);
     
 `
