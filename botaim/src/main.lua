@@ -2,7 +2,7 @@ if not getgenv or not mousemoverel then
     game:GetService("Players").LocalPlayer:Kick("Your exploit is not supported!")
 end
 
-local id = math.random(1, 1000000);
+local id = hashgnaghehehhehehehehe
 getgenv().AIMBOT_SETTINGS = {
     id = id,
     smoothness = 3,
@@ -227,27 +227,15 @@ local function get_closest(fov)
     end
     return targetPos
 end
+local mouse = client:GetMouse()
 local function aimAt(pos, smooth)
     local targetPos = pos
-    local mousePos = mouseLocation(UserInputService)
+    local mousePos = Vector2.new(mouse.X, mouse.Y) -- Use mouseLocation instead of WorldToScreenPoint
     local smoothFactor = smooth or 1
     local deltaX = (targetPos.X - mousePos.X) / smoothFactor
     local deltaY = (targetPos.Y - mousePos.Y) / smoothFactor
-    local cameraFov = camera.FieldOfView
-    local viewportSize = camera.ViewportSize
 
-    local aspectRatio = viewportSize.X / viewportSize.Y
-    local adjustedDeltaX = deltaX * aspectRatio
-    local adjustedDeltaY = deltaY
-
-    print("mousePos:", mousePos)
-    print("targetPos:", targetPos)
-    print("deltaX:", deltaX)
-    print("deltaY:", deltaY)
-    print("adjustedDeltaX:", adjustedDeltaX)
-    print("adjustedDeltaY:", adjustedDeltaY)
-
-    mousemoverel(adjustedDeltaX, adjustedDeltaY)
+    mousemoverel(deltaX, deltaY)
 end
 local circle = Drawing.new("Circle")
 circle.Thickness = 2

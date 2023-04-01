@@ -16,7 +16,7 @@ const main = async ()=> {
     -- ${hash}
 
     syn.run_on_actor(getactors()[1], [[
-        ${cleanedMainContent}
+        ${cleanedMainContent.replace("hashgnaghehehhehehehehe", `"${hash}"`)}
     ]]);
     
 `
