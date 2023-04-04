@@ -1,35 +1,7 @@
 local shared = getrenv().shared
 
-local players = game:GetService("Players")
-
 local ReplicationInterface = shared.require("ReplicationInterface");
-local PublicSettings = shared.require("PublicSettings");
-local Physics = shared.require("physics");
-local CameraInterface = shared.require("CameraInterface");
-local HudScreenGui = shared.require("HudScreenGui")
-local ScreenGui = HudScreenGui.getScreenGui()
-local UIScale = HudScreenGui.getUIScale()
 local LocalPlayer = game:GetService("Players").LocalPlayer;
-local CurrentCamera = workspace.CurrentCamera
-
-
--- print(u6.getEntry(localPlayer));
---         for i,v in pairs(u6) do print(i) end
-
-
-local firearmSight = shared.require("FirearmSight")
-
-if(_G.oldFirearmSight == nil) then
-    _G.oldFirearmSight = firearmSight.new
-end
-
-firearmSight.new = function(p1, p2)
-    -- print(p1, p2);
-    
-    _G.firearmObject = p1;
-    
-    return _G.oldFirearmSight(p1, p2);
-end;
 
 ReplicationInterface.operateOnAllEntries(function(player, entry)
     -- try catch block
@@ -40,26 +12,9 @@ ReplicationInterface.operateOnAllEntries(function(player, entry)
                 print("welp")
                 return;
             end
-            print('------', player, _G.firearmObject);
-            closestPlayerDot = nil;
-            local activeCamera = CameraInterface.getActiveCamera("MainCamera")
-
-            local cameraPosition = activeCamera:getCFrame().p
 			local playerPosition, isPlayerPositionValid = ReplicationInterface.getEntry(player):getPosition()
-
             if isPlayerPositionValid then
-                local trajectory = Physics.trajectory(cameraPosition, PublicSettings.bulletAcceleration, playerPosition, _G.firearmObject:getWeaponStat("bulletspeed"))
-                print(trajectory);
-
-                if trajectory then
-					closestPlayerDot = CurrentCamera:WorldToViewportPoint(cameraPosition + trajectory)
-				end
-            end
-            -- for i,v in pairs(v13) do print(i) end
-
-            if closestPlayerDot then
-                local position = UDim2.new(0, closestPlayerDot.x / UIScale - 1, 0, closestPlayerDot.y / UIScale - 1);
-                print(position)
+                print(playerPosition)
             end
         
         end

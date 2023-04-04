@@ -2,7 +2,7 @@ if not getgenv or not mousemoverel then
     game:GetService("Players").LocalPlayer:Kick("Your exploit is not supported!")
 end
 
-local id = hashgnaghehehhehehehehe
+local id = hashgnaghehehhehehehehe .. math.random(1, 100000000)
 getgenv().AIMBOT_SETTINGS = {
     id = id,
     smoothness = 3,
