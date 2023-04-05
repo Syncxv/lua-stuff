@@ -156,7 +156,7 @@ function esp.destroy()
     util.misc.destroyLoop("ESP_Update")
 end
 
-esp:init();
+--esp:init();
 gui:init();
 
 function _G.getesp()
