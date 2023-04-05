@@ -1,12 +1,12 @@
 local esp = require("esp")
 local hitbox = require("hitbox")
 local aimbot = require("aimbot")
+local UILibrary = require("gui")
 
 function gui_init()
     esp.esp_core:init()
     hitbox:init()
     aimbot:init()
-    local UILibrary = require("gui")
 
     local MainUI = UILibrary.Load("Hi there")
     aimbot:gui_init(MainUI)
