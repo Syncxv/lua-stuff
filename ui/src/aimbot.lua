@@ -8,13 +8,15 @@ end
 local util = require("util")
 
 local id = hashgnaghehehhehehehehe .. math.random(1, 100000000)
-getgenv().AIMBOT_SETTINGS = {
+local AIMBOT_SETTINGS = {
     id = id,
     Enabled = true,
     smoothness = 3,
     FOV = 150,
     VisibleCheck = true,
     PredictBulletDrop = true,
+    BulletDropToggleKey = util.keycodes.Keys.LAlt,
+    Key = util.keycodes.Keys.RightBracket
 }
 
 -- services
@@ -79,23 +81,6 @@ AimPoint.Visible = true
 
 -- functions
 
-local function createText(bruh, position)
-    local text = Drawing.new("Text");
-
-    text.Visible = true
-    text.Transparency = 1
-    text.ZIndex = 1
-    text.Color = Color3.fromRGB(255, 255, 255);
-    text.Position = position
-    text.Text = bruh;
-    coroutine.wrap(function()
-        game.RunService.RenderStepped:Wait()
-        text:Remove() --destroy after a frame because we make new part on frame
-    end)()
-    return text
-end
-
-
 local function GetDistance(to, from)
     local deltaX = to.X - from.X;
     local deltaY = to.Y - from.Y;
@@ -109,7 +94,7 @@ local function isAlive(entry)
 end
 
 local function isVisible(p, ...)
-    if not getgenv().AIMBOT_SETTINGS.VisibleCheck then
+    if not AIMBOT_SETTINGS.VisibleCheck then
         return true
     end
 
@@ -208,7 +193,7 @@ local function get_closest(fov)
                 magnitude = new_magnitude
                 local res = get_prediction_pos(entry, character);
 
-                if getgenv().AIMBOT_SETTINGS.PredictBulletDrop then
+                if AIMBOT_SETTINGS.PredictBulletDrop then
                     local distance = GetDistance(get_current_pos(), body_parts.head.Position);
                     local ballistic_pos = (get_bal_pos(player))
                     if ballistic_pos then
@@ -257,57 +242,62 @@ function aimbot_module:init()
     local margin = 20;
     local screenWidth = game.Players.LocalPlayer:GetMouse().ViewSizeX
     util.misc:runLoop("AIMBOT_XD",function()
-        if id ~= getgenv().AIMBOT_SETTINGS.id then
+        if id ~= AIMBOT_SETTINGS.id then
             if circle.__OBJECT_EXISTS then
-                print("stopping this instance of aimbot", id, getgenv().AIMBOT_SETTINGS.id)
+                print("stopping this instance of aimbot", id, AIMBOT_SETTINGS.id)
                 circle:Remove()
                 AimPoint:Remove()
-                util.misc.destroyLoop("AIMBOT_XD")
+                util.misc:destroyLoop("AIMBOT_XD")
             end
             return
         end
     
-        if getgenv().AIMBOT_SETTINGS.Enabled and UserInputService:IsKeyDown(Enum.KeyCode.RightBracket) then
-            local _pos = get_closest(getgenv().AIMBOT_SETTINGS.FOV)
+        if AIMBOT_SETTINGS.Enabled and UserInputService:IsKeyDown(AIMBOT_SETTINGS.Key) then
+            local _pos = get_closest(AIMBOT_SETTINGS.FOV)
             if _pos then
                 print("pos = ", _pos)
-                aimAt(_pos, getgenv().AIMBOT_SETTINGS.smoothness)
+                aimAt(_pos, AIMBOT_SETTINGS.smoothness)
             end
         end
         if circle.__OBJECT_EXISTS then
-            if getgenv().AIMBOT_SETTINGS.PredictBulletDrop then
-                createText("Bullet Drop Enabled", Vector2.new(screenWidth - 150, 0 * margin))
-            else
-                createText("Bullet Drop Disabled", Vector2.new(screenWidth - 150, 0 * margin))
-            end
             circle.Position = mouseLocation(UserInputService)
-            circle.Radius = getgenv().AIMBOT_SETTINGS.FOV
+            circle.Radius = AIMBOT_SETTINGS.FOV
         end
     end, RunService.RenderStepped)
     
     local uis = game:GetService("UserInputService")
     
     uis.InputBegan:Connect(function(input)
-        if (uis:GetFocusedTextBox() or id ~= getgenv().AIMBOT_SETTINGS.id) then
+        if (uis:GetFocusedTextBox() or id ~= AIMBOT_SETTINGS.id) then
             return; -- make sure player's not chatting!
         end
         if input.KeyCode == Enum.KeyCode.LeftAlt then
-            getgenv().AIMBOT_SETTINGS.PredictBulletDrop = not getgenv().AIMBOT_SETTINGS.PredictBulletDrop
+            AIMBOT_SETTINGS.PredictBulletDrop = not AIMBOT_SETTINGS.PredictBulletDrop
         end
     end)
 end
 
 function aimbot_module:gui_init(MainUI)
-    local FirstPage = MainUI.AddPage("Aimbot")
+    local AimbotPage = MainUI.AddPage("Aimbot")
 
-    local FirstLabel = FirstPage.AddLabel("Aimbot Settings")
-    local ESPToggle = FirstPage.AddToggle("Enabled", getgenv().AIMBOT_SETTINGS.Enabled, function(Value)
-        getgenv().AIMBOT_SETTINGS.Enabled = Value
+    local FirstLabel = AimbotPage.AddLabel("Aimbot Settings")
+    local ESPToggle = AimbotPage.AddToggle("Enabled", AIMBOT_SETTINGS.Enabled, function(Value)
+        AIMBOT_SETTINGS.Enabled = Value
     end)
-    local VisibleCheckToggle = FirstPage.AddToggle("Visible Check", getgenv().AIMBOT_SETTINGS.VisibleCheck, function(Value)
-        getgenv().AIMBOT_SETTINGS.VisibleCheck = Value
+    local VisibleCheckToggle = AimbotPage.AddToggle("Visible Check", AIMBOT_SETTINGS.VisibleCheck, function(Value)
+        AIMBOT_SETTINGS.VisibleCheck = Value
     end)
-    local MaxDistanceSlider = FirstPage.AddSlider("Smoothness", {Min = 1, Max = 20, Def = getgenv().AIMBOT_SETTINGS.smoothness}, function(Value)
-        getgenv().AIMBOT_SETTINGS.smoothness = Value
+    local VisibleCheckToggle = AimbotPage.AddToggle("Bullet Drop Prediction", AIMBOT_SETTINGS.VisibleCheck, function(Value)
+        AIMBOT_SETTINGS.PredictBulletDrop = Value
+    end)
+    local MaxDistanceSlider = AimbotPage.AddSlider("Smoothness", {Min = 1, Max = 20, Def = AIMBOT_SETTINGS.smoothness}, function(Value)
+        AIMBOT_SETTINGS.smoothness = Value
+    end)
+
+    AimbotPage.AddDropdown("Aim Key", util.keycodes.KeyNames, function(x)
+        AIMBOT_SETTINGS.Key = util.keycodes.Keys[x]
+    end)
+    AimbotPage.AddDropdown("Bullet Drop Toggle Key", util.keycodes.KeyNames, function(x)
+        AIMBOT_SETTINGS.BulletDropToggleKey = util.keycodes.Keys[x]
     end)
 end

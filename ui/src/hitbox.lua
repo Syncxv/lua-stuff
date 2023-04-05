@@ -89,10 +89,10 @@ end
 local Options = { --optinos folder (dont worry u dont have to set these we have a ui now)
     Enabled = false,
     Target = { "Head" },
-    Size = 0,
-    Color = Color3.new(),
+    Size = 7,
+    Color = Color3.new(1, 0, 0),
     Material = "Asphalt",
-    Transparency = 0,
+    Transparency = 0.5,
     Show = false,
     Key = util.keycodes.Keys.LAlt
 }
@@ -204,10 +204,10 @@ function hitbox_module:gui_init(MainUI)
             end
         end
     end
-    MainSection.AddColourPicker("Color", Color3.new(1, 0, 0), function(x)
+    MainSection.AddColourPicker("Color", Options.Color, function(x)
         Options.Color = x
     end)
-    MainSection.AddSlider("Size",{Min = 1, Max = 15, Def = 7}, function(x)
+    MainSection.AddSlider("Size",{Min = 1, Max = 15, Def = Options.Size}, function(x)
         Options.Size = x
         if Options.Enabled then
             ResetHB()
@@ -216,7 +216,7 @@ function hitbox_module:gui_init(MainUI)
             end
         end
     end)
-    MainSection.AddSlider("Transparency", {Min = 0, Max = 100, Def = 50}, function(x)
+    MainSection.AddSlider("Transparency", {Min = 0, Max = 100, Def = Options.Transparency * 100}, function(x)
         Options.Transparency = x / 100
     end)
     local TargetDropDown = MainSection.AddDropdown("Target", GetR6Parts(true), targetDropDownCallback)
