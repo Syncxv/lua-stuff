@@ -207,10 +207,10 @@ do -- functions
 		end)
 	end
 
-	function functions:RunLoop(name, func, waitt, ...)
+	function functions:RunLoop(name, callback, waitt, ...)
 		if loops[name] == nil then
-			if func ~= nil then
-				self:CreateLoop(name, func, waitt, ...)
+			if callback ~= nil then
+				self:CreateLoop(name, callback, waitt, ...)
 			end
 		end
 

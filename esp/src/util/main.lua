@@ -1,3 +1,4 @@
 util_module = {}
 
-util_module.hehe = require("util/hehe")
+util_module.color = require("util/color")
+util_module.misc = require("util/misc")

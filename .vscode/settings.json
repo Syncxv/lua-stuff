@@ -2,6 +2,7 @@
   "robloxLsp.diagnostics.globals": [
     "getgenv",
     "mousemoverel",
-    "Drawing"
+    "Drawing",
+    "getrenv"
   ]
 }
