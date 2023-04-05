@@ -1,4 +1,3 @@
-local gui = require("gui")
 local util = require("util")
 local camera = workspace.CurrentCamera
 local shared = getrenv().shared
@@ -12,19 +11,19 @@ local localPlayer = players.LocalPlayer
 local client = game:GetService("Players").LocalPlayer
 local coreGui = game:GetService("CoreGui")
 
-local esp = {enabled = true, max_distance = 300, visible_check = false, esp_table = {}}
+local esp = {enabled = true, max_distance = 300, visible_check = false, color = Color3.new(1, 0, 0), esp_table = {}}
 
 function esp:create_esp(player)
     local Name = Drawing.new("Text")
     Name.Text = tostring(player)
-    Name.Color = Color3.new(1, 0, 0)
+    Name.Color = self.color
     Name.Size = 15
     Name.Position = Vector2.new(0, 0)
     Name.Visible = false
 
     local Dist = Drawing.new("Text")
     Dist.Text = ""
-    Dist.Color = Color3.new(1, 0, 0)
+    Dist.Color = self.color
     Dist.Size = 15
     Dist.Position = Vector2.new(0, 0)
     Dist.Visible = false
@@ -48,6 +47,11 @@ function esp:create_esp(player)
     function esp_instance:Hide()
         self.Name.Visible = false
         self.Dist.Visible = false
+    end
+
+    function esp_instance:SetColor(color)
+        self.Name.Color = color
+        self.Dist.Color = color
     end
     
     function esp_instance:Destroy()
@@ -147,7 +151,7 @@ function esp:init()
     end)
 end
 
-function esp.destroy()
+function esp:destroy()
     for _, v in pairs(esp.esp_table) do
         v:Destroy()
     end
@@ -156,9 +160,30 @@ function esp.destroy()
     util.misc.destroyLoop("ESP_Update")
 end
 
---esp:init();
-gui:init();
+esp:init();
+function gui_init()
+    local UILibrary = require("gui")
 
+    local MainUI = UILibrary.Load("Hi there")
+    local FirstPage = MainUI.AddPage("ESP")
+
+    local FirstLabel = FirstPage.AddLabel("ESP")
+    local ESPToggle = FirstPage.AddToggle("Enabled", esp.enabled, function(Value)
+        esp.enabled = Value
+    end)
+    local VisibleCheckToggle = FirstPage.AddToggle("Visible Check", esp.visible_check, function(Value)
+        esp.visible_check = Value
+    end)
+    local MaxDistanceSlider = FirstPage.AddSlider("Max Distance", {Min = 0, Max = 2000, Def = esp.max_distance}, function(Value)
+        esp.max_distance = Value
+    end)
+    local FirstPicker = FirstPage.AddColourPicker("ESP Color", esp.color, function(Value)
+        for _, v in pairs(esp.esp_table) do
+            v:SetColor(Value)
+        end
+    end)
+end
+gui_init()
 function _G.getesp()
     return esp
 end
