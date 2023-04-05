@@ -1,6 +1,7 @@
-misc_module = {}
+misc_module = {
+	loops = {}
+}
 
-misc_module.loops = {} -- This is a table that stores all the loops.
 function misc_module:runLoop(name, callback, waitt, ...) -- This is a function that runs a loop with a callback.
     if self.loops[name] == nil then
         if callback ~= nil then

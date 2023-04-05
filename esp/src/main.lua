@@ -1,3 +1,4 @@
+local gui = require("gui")
 local util = require("util")
 local camera = workspace.CurrentCamera
 local shared = getrenv().shared
@@ -50,6 +51,7 @@ function esp:create_esp(player)
     end
     
     function esp_instance:Destroy()
+        self:Hide()
         self.Name:Remove()
         self.Dist:Remove()
     end
@@ -155,6 +157,7 @@ function esp.destroy()
 end
 
 esp:init();
+gui:init();
 
 function _G.getesp()
     return esp
