@@ -161,7 +161,26 @@ function esp_module.esp_core:destroy()
     util.misc.destroyLoop("ESP_Update")
 end
 
-esp_module.esp_core:init();
+function esp_module:gui_init(MainUI)
+    local FirstPage = MainUI.AddPage("ESP")
+
+    local FirstLabel = FirstPage.AddLabel("ESP")
+    local ESPToggle = FirstPage.AddToggle("Enabled", self.esp_core.enabled, function(Value)
+        self.esp_core.enabled = Value
+    end)
+    local VisibleCheckToggle = FirstPage.AddToggle("Visible Check", self.esp_core.visible_check, function(Value)
+        self.esp_core.visible_check = Value
+    end)
+    local MaxDistanceSlider = FirstPage.AddSlider("Max Distance", {Min = 0, Max = 2000, Def = self.esp_core.max_distance}, function(Value)
+        self.esp_core.max_distance = Value
+    end)
+    local FirstPicker = FirstPage.AddColourPicker("ESP Color", self.esp_core.color, function(Value)
+        self.esp_core.color = Value
+        for _, v in pairs(self.esp_core.esp_table) do
+            v:SetColor(Value)
+        end
+    end)
+end
 
 function _G.getesp()
     return esp_module.esp_core
