@@ -9,26 +9,26 @@ local runService = game:GetService("RunService")
 local players = game:GetService("Players")
 local localPlayer = players.LocalPlayer
 local client = game:GetService("Players").LocalPlayer
+local coreGui = game:GetService("CoreGui")
 
 local esp = {enabled = true, esp_table = {}}
 
 function esp:create_esp(player)
-        local color = util.color.getTeamColor(localPlayer, player)
 
         local Name = Drawing.new("Text")
         Name.Text = tostring(player)
-        Name.Color = color
+        Name.Color = Color3.new(1, 0, 0)
         Name.Size = 15
         Name.Position = Vector2.new(0, 0)
         Name.Visible = false
 
         local Dist = Drawing.new("Text")
         Dist.Text = ""
-        Dist.Color = color
+        Dist.Color = Color3.new(1, 0, 0)
         Dist.Size = 15
         Dist.Position = Vector2.new(0, 0)
         Dist.Visible = false
-        self.esp_table[player] = {["Name"] = Name, ["Dist"] = Dist}
+        self.esp_table[player] = {["Name"] = Name, ["Dist"] = Dist, ["Highlight"] = Instance.new("Highlight", coreGui),}
     
 end
 
@@ -65,25 +65,32 @@ function esp:update_esp(player)
         if head then
             local v2, vis = camera:WorldToScreenPoint(head.Position)
             if vis and replicationObject.isAlive(entry) then
-                local name = tostring(player)
-                print(name)
-                t.Name.Text = name
+                t.Name.Text = tostring(player)
                 t.Name.Position = Vector2.new(v2.X, v2.Y)
                 t.Name.Visible = true
-
+                
                 local dist = (currPos - tor.Position).magnitude
                 t.Dist.Position = Vector2.new(v2.X, v2.Y + 15)
                 t.Dist.Visible = true
                 t.Dist.Text = string.format("%.0f", dist)
+
+                t.Highlight.FillColor =
+					Color3.fromHSV(math.clamp(dist / 5, 0, 125) / 255, 0.75, 1)
+				t.Highlight.FillTransparency = 1
+                t.Highlight.Enabled = true
             else
                 t.Name.Visible = false
                 t.Dist.Visible = false
+                t.Highlight.FillTransparency = 1
+                t.Highlight.Enabled = false
             end
         end
     else
         if t ~= nil then
             t.Name.Visible = false
             t.Dist.Visible = false
+            t.Highlight.FillTransparency = 1
+            t.Highlight.Enabled = false
         end
     end
     end)
@@ -92,22 +99,20 @@ function esp:update_esp(player)
     end
 end
 function esp:remove_esp(plr)
-    if self.esp_table[tostring(plr)] ~= nil then
-        for i, v in next, self.esp_table[tostring(plr)] do
-            v:Remove()
+    local t = self.esp_table[tostring(plr)];
+    if t ~= nil then
+        for i, v in next, t do
+            if type(v.Remove) == "function" then
+                v:Remove()
+            elseif type(v.Destroy) == "function" then
+                v:Destroy()
+            end
         end
 
         self.esp_table[tostring(plr)] = nil
     end
 end
-function esp:update_esp_color(plr)
-    local color = util.color.getTeamColor(localPlayer, plr)
-    if self.esp_table[tostring(plr)] ~= nil then
-        for i, v in next, self.esp_table[tostring(plr)] do
-            v.Color = color
-        end
-    end
-end
+
 function esp:init() 
     util.misc:runLoop("ESP_Update", function()
         if self.enabled then
@@ -122,12 +127,12 @@ function esp:init()
             spawn(function()
                 self:create_esp(v)
             end)
-
-            v.Changed:Connect(function(prop)
-                self:update_esp_color(v)
-            end)
         end
     end
+
+    players.PlayerAdded:connect(function(plr)
+        self:create_esp(plr)
+    end)
 
     players.PlayerRemoving:Connect(function(plr)
         self:remove_esp(plr)
@@ -147,3 +152,5 @@ function _G.shutdown()
     util.misc.destroyLoop("ESP_Update")
 
 end
+
+print(util.base64.decode("c3luLnJ1bl9vbl9hY3RvcihnZXRhY3RvcnMoKVsxXSwgW1sKICAgIF9HLnNodXRkb3duKCkKXV0p"))
