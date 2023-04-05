@@ -57,3 +57,6 @@ function misc_module:get_current_pos(client)
     	return client.Character.HumanoidRootPart.Position
 	end
 end
+function misc_module:is_visible(camera, client, p, ...)
+    return #camera:GetPartsObscuringTarget({ p }, { camera, client.Character, workspace.Ignore, ... }) == 0
+end
