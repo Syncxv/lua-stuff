@@ -1,8 +1,6 @@
 --made by The3Bakers#4565
 --discord link https://discord.gg/vQQqcgBWCG
-for _, v in pairs(getactors()) do --phantom forces out here using actors
-    if tostring(v) == "lol" then --actor named lul
-        syn.run_on_actor(v, [[
+syn.run_on_actor(getactors()[1], [[
             local textCount = 0;
 
 local function createText(bruh, position)

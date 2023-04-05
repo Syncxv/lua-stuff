@@ -1,3 +1,5 @@
+esp_module = {}
+
 local util = require("util")
 local camera = workspace.CurrentCamera
 local shared = getrenv().shared
@@ -11,9 +13,9 @@ local localPlayer = players.LocalPlayer
 local client = game:GetService("Players").LocalPlayer
 local coreGui = game:GetService("CoreGui")
 
-local esp = {enabled = true, max_distance = 300, visible_check = false, color = Color3.new(1, 0, 0), esp_table = {}}
+esp_module.esp_core = {enabled = true, max_distance = 300, visible_check = false, color = Color3.new(1, 0, 0), esp_table = {}}
 
-function esp:create_esp(player)
+function esp_module.esp_core:create_esp(player)
     local Name = Drawing.new("Text")
     Name.Text = tostring(player)
     Name.Color = self.color
@@ -34,7 +36,6 @@ function esp:create_esp(player)
     }
 
     function esp_instance:Show(name, dist, p1, p2)
-        print("Showing", name, dist, p1, p2)
         self.Name.Text = name
         self.Name.Position = p1
         self.Name.Visible = true
@@ -64,7 +65,7 @@ function esp:create_esp(player)
     self.esp_table[player] = esp_instance
 end
 
-function esp:update_esp(player)
+function esp_module.esp_core:update_esp(player)
     local success, err = pcall(function()
         if player == client or player.Team == client.Team or tostring(player) == nil then
 
@@ -117,7 +118,7 @@ function esp:update_esp(player)
         print(err)
     end
 end
-function esp:remove_esp(plr)
+function esp_module.esp_core:remove_esp(plr)
     local t = self.esp_table[tostring(plr)];
     if t ~= nil then
         t:Destroy();
@@ -125,7 +126,7 @@ function esp:remove_esp(plr)
     end
 end
 
-function esp:init() 
+function esp_module.esp_core:init() 
     util.misc:runLoop("ESP_Update", function()
         if self.enabled then
             for i, v in pairs(players:GetPlayers()) do
@@ -151,42 +152,19 @@ function esp:init()
     end)
 end
 
-function esp:destroy()
-    for _, v in pairs(esp.esp_table) do
+function esp_module.esp_core:destroy()
+    for _, v in pairs(esp_module.esp_core.esp_table) do
         v:Destroy()
     end
-    esp.esp_table = {}
-    esp.enabled = false;
+    esp_module.esp_core.esp_table = {}
+    esp_module.esp_core.enabled = false;
     util.misc.destroyLoop("ESP_Update")
 end
 
-esp:init();
-function gui_init()
-    local UILibrary = require("gui")
+esp_module.esp_core:init();
 
-    local MainUI = UILibrary.Load("Hi there")
-    local FirstPage = MainUI.AddPage("ESP")
-
-    local FirstLabel = FirstPage.AddLabel("ESP")
-    local ESPToggle = FirstPage.AddToggle("Enabled", esp.enabled, function(Value)
-        esp.enabled = Value
-    end)
-    local VisibleCheckToggle = FirstPage.AddToggle("Visible Check", esp.visible_check, function(Value)
-        esp.visible_check = Value
-    end)
-    local MaxDistanceSlider = FirstPage.AddSlider("Max Distance", {Min = 0, Max = 2000, Def = esp.max_distance}, function(Value)
-        esp.max_distance = Value
-    end)
-    local FirstPicker = FirstPage.AddColourPicker("ESP Color", esp.color, function(Value)
-        esp.color = Value
-        for _, v in pairs(esp.esp_table) do
-            v:SetColor(Value)
-        end
-    end)
-end
-gui_init()
 function _G.getesp()
-    return esp
+    return esp_module.esp_core
 end
 
 print(util.base64.decode("c3luLnJ1bl9vbl9hY3RvcihnZXRhY3RvcnMoKVsxXSwgW1sKCnByaW50KF9HLmdldGVzcCgpLmRlc3Ryb3koKSkKCl1dKQ=="))
