@@ -3,6 +3,7 @@
     "getgenv",
     "mousemoverel",
     "Drawing",
-    "getrenv"
+    "getrenv",
+    "getgc"
   ]
 }

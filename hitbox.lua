@@ -214,5 +214,3 @@ uis.InputBegan:Connect(function(input)
 end)
 
         ]])
-    end
-end

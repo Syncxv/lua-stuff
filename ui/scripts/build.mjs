@@ -31,6 +31,9 @@ const main = async () => {
 	fs.writeFileSync("dist/normal.lua", cleanedMainContent, {});
 };
 
+const requiredFiles = new Set();
+const requiredModules = new Map();
+
 const requireRegex =
 	/(?:local\s{1,10})?(?<varName>[\S\w]*)\s?=\s?require\(['"](?<modPath>.{1,10000})['"]\)/gm;
 function requireFile(pathBruh, visited = []) {
@@ -49,7 +52,7 @@ function requireFile(pathBruh, visited = []) {
 				"src",
 				getFileName(fileName)
 			);
-			if (visited.includes(modulePath)) throw Error("bruh circular require eh");
+			// if (visited.includes(modulePath)) throw Error("bruh circular require eh");
 			result += requireFile(modulePath, visited);
 			continue;
 		}
@@ -60,15 +63,26 @@ function requireFile(pathBruh, visited = []) {
 			const varName = match.groups.varName;
 			const modulePath = getPath(fileName);
 
-			console.log(modulePath);
+			// if (visited.includes(modulePath)) throw Error("bruh circular require eh");
 
-			if (visited.includes(modulePath)) throw Error("bruh circular require eh");
-			console.log("require", fileName, varName);
+			// If the file has already been required, get its variable name from the map
+			if (requiredFiles.has(modulePath)) {
+				const existingVarName = requiredModules.get(modulePath);
+				result += `${
+					varName.includes(".") ? "" : "local "
+				}${varName} = ${existingVarName}\n`;
+				continue;
+			}
+
+			requiredFiles.add(modulePath);
+
 			result += `${varName.includes(".") ? "" : "local "}${varName} = {}\n`;
 			result += `do\n`;
 			result += requireFile(modulePath, visited);
 			result += `\n${varName} = ${fileName.split("/").at(-1)}_module\n`;
 			result += `end\n`;
+
+			requiredModules.set(modulePath, `${fileName.split("/").at(-1)}_module`);
 			continue;
 		}
 
