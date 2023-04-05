@@ -11,7 +11,7 @@ local localPlayer = players.LocalPlayer
 local client = game:GetService("Players").LocalPlayer
 local coreGui = game:GetService("CoreGui")
 
-local esp = {enabled = true, esp_table = {}}
+local esp = {enabled = true, max_distance = 300, walls = false, esp_table = {}}
 
 function esp:create_esp(player)
 
@@ -64,12 +64,13 @@ function esp:update_esp(player)
         local tor = body_parts.torso;
         if head then
             local v2, vis = camera:WorldToScreenPoint(head.Position)
-            if vis and replicationObject.isAlive(entry) then
+            local dist = (currPos - tor.Position).magnitude
+            print(math.round(dist), self.max_distance, math.round(dist) <= self.max_distance)
+            if vis and math.round(dist) <= self.max_distance and replicationObject.isAlive(entry) then
                 t.Name.Text = tostring(player)
                 t.Name.Position = Vector2.new(v2.X, v2.Y)
                 t.Name.Visible = true
                 
-                local dist = (currPos - tor.Position).magnitude
                 t.Dist.Position = Vector2.new(v2.X, v2.Y + 15)
                 t.Dist.Visible = true
                 t.Dist.Text = string.format("%.0f", dist)
@@ -139,18 +140,25 @@ function esp:init()
     end)
 end
 
-esp:init();
-
-function _G.shutdown()
-    esp.enabled = false;
+function esp.destroy()
     for i, v in pairs(esp.esp_table) do
-        v.Name:Remove()
-        v.Dist:Remove()
+        for i2, v2 in pairs(v) do
+            if type(v2.Remove) == "function" then
+                v2:Remove()
+            elseif type(v2.Destroy) == "function" then
+                v2:Destroy()
+            end
+        end
     end
     esp.esp_table = {}
-
+    esp.enabled = false;
     util.misc.destroyLoop("ESP_Update")
+end
 
+esp:init();
+
+function _G.getesp()
+    return esp
 end
 
 print(util.base64.decode("c3luLnJ1bl9vbl9hY3RvcihnZXRhY3RvcnMoKVsxXSwgW1sKICAgIF9HLnNodXRkb3duKCkKXV0p"))
