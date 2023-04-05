@@ -24,10 +24,11 @@ const main = async ()=> {
     console.log(final)
     if(!fs.existsSync('dist')) fs.mkdirSync('dist')
     fs.writeFileSync('dist/main.lua', final, {})
+    fs.writeFileSync('dist/normal.lua', cleanedMainContent, {})
 
 }
 
-const requireRegex = /local\s{1,10}(?<varName>[\S\w]*)\s?=\s?require\(['"](?<modPath>.{1,10000})['"]\)/gm
+const requireRegex = /(?:local\s{1,10})?(?<varName>[\S\w]*)\s?=\s?require\(['"](?<modPath>.{1,10000})['"]\)/gm
 function requireFile(pathBruh, visited=[]) {
     visited.push(pathBruh)
     let result = ""
@@ -49,12 +50,16 @@ function requireFile(pathBruh, visited=[]) {
         if (match) {
             const fileName = match.groups.modPath
             const varName = match.groups.varName
-            const modulePath = path.resolve(__dirname, '..', 'src', getFileName(fileName));
+            const modulePath = getPath(fileName)
+
+            console.log(modulePath)
+
             if(visited.includes(modulePath)) throw Error("bruh circular require eh")
-            result += `local ${varName} = {}\n`;
+            console.log("require", fileName, varName)
+            result += `${varName.includes(".") ? "" : "local "}${varName} = {}\n`;
             result += `do\n`;
             result += requireFile(modulePath, visited);
-            result += `\n${varName} = ${fileName}_module\n`;
+            result += `\n${varName} = ${fileName.split("/").at(-1)}_module\n`;
             result += `end\n`;
             continue
         }
@@ -65,6 +70,12 @@ function requireFile(pathBruh, visited=[]) {
     return result
 }
 
+function getPath(fileName) {
+    const poth = path.resolve(__dirname, '..', 'src', getFileName(fileName));
+    const isFile = fs.existsSync(poth)
+
+    return isFile ?  path.resolve(__dirname, '..', 'src', getFileName(fileName)) :  path.resolve(__dirname, '..', 'src', fileName, "main.lua");
+}
 
 function getFileName(fileName) {
     return fileName.endsWith(".lua") ? fileName : fileName + ".lua"
