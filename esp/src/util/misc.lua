@@ -45,3 +45,9 @@ function misc_module:stopLoop(name) -- This is a function that stops a loop.
         self.loops[name].Running = false
     end
 end
+
+function misc_module:get_current_pos(client)
+	if client.Character then 
+    	return client.Character.HumanoidRootPart.Position
+	end
+end
