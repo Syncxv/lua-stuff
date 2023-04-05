@@ -178,6 +178,7 @@ function gui_init()
         esp.max_distance = Value
     end)
     local FirstPicker = FirstPage.AddColourPicker("ESP Color", esp.color, function(Value)
+        esp.color = Value
         for _, v in pairs(esp.esp_table) do
             v:SetColor(Value)
         end
