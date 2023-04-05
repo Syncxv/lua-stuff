@@ -103,11 +103,13 @@ function hitbox_module:init()
     local TargetText = createText(Options.Target[1], Vector2.new(screenWidth - 50, 0 * margin))
     local SizeText = createText(tostring(Options.Size), Vector2.new(screenWidth - 50, 1 * margin))
     local TransText = createText(tostring(Options.Transparency), Vector2.new(screenWidth - 50, 2 * margin))
-    util.misc:runLoop("Hitbox_bruh", function()
+    game.RunService.RenderStepped:Connect(function()
         if Options.Enabled and Options.Show then 
             TargetText.Visible = true
             SizeText.Visible = true
+            SizeText.Text = tostring(Options.Size)
             TransText.Visible = true
+            TransText.Text = tostring(Options.Transparency)
             for _, v in pairs(GetEnemys()[1]) do --in every enemy character
                 for _, c in pairs(Options.Target) do --for every part selected (mainly used for all)
                     local cham = Instance.new("Part") --add part
@@ -129,7 +131,7 @@ function hitbox_module:init()
             SizeText.Visible = false
             TransText.Visible = false
         end
-    end, runService.RenderStepped)
+    end)
 
     
 
@@ -170,10 +172,6 @@ function hitbox_module:init()
         end
 
     end)
-end
-
-function hitbox_module:destroy()
-    util.misc.destroyLoop("Hitbox_bruh")
 end
 --epic coasting ui lib
 function hitbox_module:gui_init(MainUI)
@@ -218,8 +216,8 @@ function hitbox_module:gui_init(MainUI)
             end
         end
     end)
-    MainSection.AddSlider("Transparency", {Min = 0, Max = 1, Def = .5}, function(x)
-        Options.Transparency = x
+    MainSection.AddSlider("Transparency", {Min = 0, Max = 100, Def = 50}, function(x)
+        Options.Transparency = x / 100
     end)
     local TargetDropDown = MainSection.AddDropdown("Target", GetR6Parts(true), targetDropDownCallback)
     MainSection.AddDropdown("Matieral", GetMaterials(), 1, function(x)
