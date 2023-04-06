@@ -73,7 +73,7 @@ function esp_module.esp_core:create_esp(player)
 
         local BottomCenter = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y)
         self.Tracer.From = BottomCenter
-        self.Tracer.To = p1
+        self.Tracer.To = p2
         self.Tracer.Visible = esp_module.esp_core.tracers and true
     end
     
@@ -86,7 +86,7 @@ function esp_module.esp_core:create_esp(player)
     function esp_instance:SetColor(color)
         self.Name.Color = color
         self.Dist.Color = color
-        self.Tracer.Color = color
+        --self.Tracer.Color = color
     end
     
     function esp_instance:Destroy()
@@ -105,7 +105,6 @@ end
 function esp_module.esp_core:update_esp(player)
     local success, err = pcall(function()
         if player == client or player.Team == client.Team or tostring(player) == nil then
-
             return
         end
     local currPos
@@ -170,14 +169,21 @@ function esp_module.esp_core:create_chams(wsPlayer)
 end
 function esp_module.esp_core:update_chams()
     for _, value in pairs(self.chams_table) do
-        if self.visible_check and not util.misc:is_visible(camera, client, value.esp_object.Position) then
-            value.highlight.Enabled = false
-            return
-        end
-        if value.esp_object ~= nil and value.esp_object.Parent.Name ~= client.TeamColor.Name then
-            value.highlight.FillColor = self.chams_color
-            value.highlight.FillTransparency = 1
-            value.highlight.Enabled = true
+        if
+        value.esp_object.Head
+        and value.esp_object.Parent.Name ~= client.TeamColor.Name
+        then
+            local vec3_position = value.esp_object.Head.Position
+            local screen_position, on_screen = camera:WorldToScreenPoint(vec3_position)
+            local distant_from_character = client:DistanceFromCharacter(vec3_position)
+            if on_screen and math.round(distant_from_character) <= self.max_distance then
+                print(value.esp_object.Parent.Name, client.TeamColor.Name, value.esp_object.Parent.Name ~= client.TeamColor.Name)
+                value.highlight.Enabled = true
+                value.highlight.FillColor = self.chams_color
+                value.highlight.FillTransparency = 1
+            else
+                value.highlight.Enabled = false
+            end
         else
             value.highlight.Enabled = false
         end
@@ -229,8 +235,8 @@ function esp_module.esp_core:init()
     end)
 
     for i, team in pairs(workspace.Players:GetChildren()) do
-        team.ChildAdded:Connect(function(child)
-            self:create_chams(child)
+        team.ChildAdded:Connect(function(wsPlayer)
+            self:create_chams(wsPlayer)
         end)
 
         team.ChildRemoved:Connect(function(child)
@@ -243,8 +249,8 @@ function esp_module.esp_core:init()
 end
 
 function esp_module.esp_core:destroy()
-    util.misc.destroyLoop("ESP_Update")
-    util.misc.destroyLoop("CHAMS_Update")
+    util.misc:destroyLoop("ESP_Update")
+    util.misc:destroyLoop("CHAMS_Update")
     for _, v in pairs(esp_module.esp_core.esp_table) do
         v:Destroy()
     end
@@ -280,10 +286,17 @@ function esp_module:gui_init(MainUI)
     local MaxDistanceSlider = ESPPage.AddSlider("Max Distance", {Min = 0, Max = 2000, Def = self.esp_core.max_distance}, function(Value)
         self.esp_core.max_distance = Value
     end)
-    local FirstPicker = ESPPage.AddColourPicker("ESP Color", self.esp_core.text_color, function(Value)
+    local TextColor = ESPPage.AddColourPicker("Text Color", self.esp_core.text_color, function(Value)
         self.esp_core.text_color = Value
         for _, v in pairs(self.esp_core.esp_table) do
             v:SetColor(Value)
+        end
+    end)
+
+    local TracerColor = ESPPage.AddColourPicker("Tracer Color", self.esp_core.text_color, function(Value)
+        self.esp_core.tracer_color = Value
+        for _, v in pairs(self.esp_core.esp_table) do
+            v.Tracer.Color = Value
         end
     end)
 
