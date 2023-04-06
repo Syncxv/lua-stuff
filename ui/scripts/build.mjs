@@ -35,7 +35,7 @@ const requiredFiles = new Set();
 const requiredModules = new Map();
 
 const requireRegex =
-	/(?:local\s{1,10})?(?<varName>[\S\w]*)\s?=\s?require\(['"](?<modPath>.{1,10000})['"]\)/gm;
+	/^(?!--)\s*(?:local\s{1,10})?(?<varName>[\S\w]*)\s?=\s?require\(['"](?<modPath>.{1,10000})['"]\)/gm;
 function requireFile(pathBruh, visited = []) {
 	visited.push(pathBruh);
 	let result = "";
