@@ -1,5 +1,10 @@
 esp_module = {}
 
+if _G.getesp ~= nil then
+    print("Destroying old esp")
+    _G.getesp():destroy()
+end
+
 local util = require("util")
 local camera = workspace.CurrentCamera
 local shared = getrenv().shared
@@ -150,6 +155,10 @@ function esp_module.esp_core:create_chams(wsPlayer)
 end
 function esp_module.esp_core:update_chams()
     for _, value in pairs(self.chams_table) do
+        if self.visible_check and not util.misc:is_visible(camera, client, value.esp_object.Position, value.esp_object.Parent) then
+            value.highlight.Enabled = false
+            return
+        end
         if value.esp_object ~= nil and value.esp_object.Parent.Name ~= client.TeamColor.Name then
             value.highlight.FillColor = self.chams_color
             value.highlight.FillTransparency = 1
@@ -178,9 +187,7 @@ function esp_module.esp_core:init()
 
     util.misc:runLoop("CHAMS_Update", function()
         if self.chams then
-            for i, v in pairs(workspace.Players:GetDescendants()) do
-                self:update_chams()
-            end
+            self:update_chams()
         end
     end, runService.RenderStepped)
 
@@ -192,6 +199,12 @@ function esp_module.esp_core:init()
         end
     end
 
+    for _, v in pairs(workspace.Players:GetChildren()) do
+        for _, v2 in pairs(v:GetChildren()) do
+            self:create_chams(v2)
+        end
+    end
+
     players.PlayerAdded:Connect(function(plr)
         self:create_esp(plr)
     end)
@@ -200,18 +213,16 @@ function esp_module.esp_core:init()
         self:remove_esp(plr)
     end)
 
-    spawn(function()
-        workspace.Ignore.DeadBody.ChildAdded:Connect(function(child)
+    for i, team in pairs(workspace.Players:GetChildren()) do
+        team.ChildAdded:Connect(function(child)
+            self:create_chams(child)
+        end)
+
+        team.ChildRemoved:Connect(function(child)
             if self.chams_table[child] then
                 self.chams_table[child].highlight:Destroy()
                 self.chams_table[child] = nil
             end
-        end)
-     end)
-
-    for i, team in pairs(workspace.Players:GetChildren()) do
-        team.ChildAdded:Connect(function(child)
-            self:create_chams(child)
         end)
     end
 end

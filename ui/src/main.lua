@@ -1,3 +1,8 @@
+if not game:IsLoaded() then
+    game.Loaded:Wait()
+end
+
+
 local esp = require("esp")
 -- local hitbox = require("hitbox")
 -- local aimbot = require("aimbot")
