@@ -180,6 +180,11 @@ function esp_module.esp_core:update_chams()
         and self.enabled
         and value.esp_object.Parent.Name ~= client.TeamColor.Name
         then
+            if self.visible_check then
+                value.highlight.DepthMode = Enum.HighlightDepthMode.Occluded
+            else
+                value.highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+            end
             local vec3_position = value.esp_object.Head.Position
             local screen_position, on_screen = camera:WorldToScreenPoint(vec3_position)
             local distant_from_character = client:DistanceFromCharacter(vec3_position)

@@ -125,6 +125,9 @@ local function get_bal_pos(player)
 end
 
 local function get_current_pos()
+    if client.Character == nil then
+        return nil
+    end
     return client.Character.HumanoidRootPart.Position
 end
 
@@ -139,6 +142,10 @@ local function get_prediction_pos(entry, character)
     local TargetLocation = character:getCharacterHash().head.Position
 
     local CurrentPosition = get_current_pos();
+
+    if CurrentPosition == nil then
+        return nil
+    end
 
     local Distance = GetDistance(CurrentPosition, TargetLocation);
 
@@ -191,7 +198,7 @@ local function get_closest(fov)
                 and isVisible(body_parts.head.Position, body_parts.torso.Parent)
             then
                 magnitude = new_magnitude
-                local res = get_prediction_pos(entry, character);
+                local res = get_prediction_pos(entry, character) or body_parts.head.Position;
 
                 if AIMBOT_SETTINGS.PredictBulletDrop then
                     local distance = GetDistance(get_current_pos(), body_parts.head.Position);
@@ -289,6 +296,9 @@ function aimbot_module:gui_init(MainUI)
     end)
     local VisibleCheckToggle = AimbotPage.AddToggle("Bullet Drop Prediction", AIMBOT_SETTINGS.VisibleCheck, function(Value)
         AIMBOT_SETTINGS.PredictBulletDrop = Value
+    end)
+    local ShowFOV = AimbotPage.AddToggle("Show FOV", AIMBOT_SETTINGS.VisibleCheck, function(Value)
+        circle.Visible = Value
     end)
     local MaxDistanceSlider = AimbotPage.AddSlider("Smoothness", {Min = 1, Max = 20, Def = AIMBOT_SETTINGS.smoothness}, function(Value)
         AIMBOT_SETTINGS.smoothness = Value
