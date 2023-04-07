@@ -12,11 +12,11 @@ const main = async () => {
 		']] .. "]]" .. [['
 	);
 
-	//get hash of content
 	const hash = crypto.createHash("sha256").update(mainContent).digest("hex");
 
 	const final = `
-    -- esp
+    -- collection of pf scripts in one ui
+	-- credits: https://github.com/Syncxv/lua-stuff/blob/master/README.md
     -- ${hash}
 
     syn.run_on_actor(getactors()[1], [[
