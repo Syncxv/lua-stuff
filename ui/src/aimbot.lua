@@ -158,9 +158,9 @@ local function get_prediction_pos(entry, character)
     local TravelTime = Distance / speed;
 
     local PredictedLocation = TargetLocation + TargetVelocity * TravelTime
-    print("\n\n\n------------", "\n\n\n", "TravelTime = ", TravelTime, "\n\n\n", "TARGET VELOCITY = ", TargetVelocity,
-    "\n\n\n", "PREDICTED LOCATION = ", PredictedLocation, "\n\n\n", "CURRENT LOCATION = ", CurrentPosition,
-    "\n\n\n------------\n\n\n")
+    -- print("\n\n\n------------", "\n\n\n", "TravelTime = ", TravelTime, "\n\n\n", "TARGET VELOCITY = ", TargetVelocity,
+    -- "\n\n\n", "PREDICTED LOCATION = ", PredictedLocation, "\n\n\n", "CURRENT LOCATION = ", CurrentPosition,
+    -- "\n\n\n------------\n\n\n")
 
     return CurrentCamera:WorldToScreenPoint(PredictedLocation)
 end
@@ -203,12 +203,12 @@ local function get_closest(fov)
                 if AIMBOT_SETTINGS.PredictBulletDrop then
                     local currentPos = get_current_pos()
                     if currentPos then
-                        local distance = GetDistance(currentPos, body_parts.head.Position);
+                        -- local distance = GetDistance(currentPos, body_parts.head.Position);
                         local ballistic_pos = (get_bal_pos(player))
                         if ballistic_pos then
                             res = Vector2.new(res.X, ballistic_pos.Y - (ballistic_pos.Y - res.Y))
-                            print("\n\n", "BALLISTIC POS = ", ballistic_pos, "\n\n", "RES = ", res, "\n\n", "DISTANCE = ",
-                            distance, "\n\n")
+                            -- print("\n\n", "BALLISTIC POS = ", ballistic_pos, "\n\n", "RES = ", res, "\n\n", "DISTANCE = ",
+                            -- distance, "\n\n")
                         end
                     end
                 end
@@ -263,10 +263,16 @@ function aimbot_module:init()
         end
     
         if AIMBOT_SETTINGS.Enabled and UserInputService:IsKeyDown(AIMBOT_SETTINGS.Key) then
-            local _pos = get_closest(AIMBOT_SETTINGS.FOV)
-            if _pos then
-                print("pos = ", _pos)
-                aimAt(_pos, AIMBOT_SETTINGS.smoothness)
+            local success, err = pcall(function()
+                local _pos = get_closest(AIMBOT_SETTINGS.FOV)
+                if _pos then
+                    -- print("pos = ", _pos)
+                    aimAt(_pos, AIMBOT_SETTINGS.smoothness)
+                end
+            end)
+
+            if not success then
+                print("ERROR: ", err)
             end
         end
         if circle.__OBJECT_EXISTS then
