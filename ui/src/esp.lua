@@ -99,7 +99,13 @@ function esp_module.esp_core:create_esp(player)
     
     self.esp_table[player] = esp_instance
 end
-
+function esp_module.esp_core:remove_esp(plr)
+    local t = self.esp_table[tostring(plr)];
+    if t ~= nil then
+        t:Destroy();
+        self.esp_table[tostring(plr)] = nil
+    end
+end
 
 
 function esp_module.esp_core:update_esp(player)
@@ -131,9 +137,9 @@ function esp_module.esp_core:update_esp(player)
         local head = body_parts.head
         local tor = body_parts.torso;
         if head then
-            local v3, vis = camera:WorldToScreenPoint(head.Position)
+            local v3, on_screen = camera:WorldToScreenPoint(head.Position)
             local dist: number = (currPos - tor.Position).magnitude
-            if (vis and math.round(dist) <= self.max_distance and replicationObject.isAlive(entry))
+            if (on_screen and math.round(dist) <= self.max_distance and replicationObject.isAlive(entry))
             then
                 if self.visible_check and not util.misc:is_visible(camera, client, head.Position, body_parts.head.Parent) then
                     t:Hide()
@@ -170,17 +176,17 @@ end
 function esp_module.esp_core:update_chams()
     for _, value in pairs(self.chams_table) do
         if
-        value.esp_object.Head
+        self.chams
+        and self.enabled
         and value.esp_object.Parent.Name ~= client.TeamColor.Name
         then
             local vec3_position = value.esp_object.Head.Position
             local screen_position, on_screen = camera:WorldToScreenPoint(vec3_position)
             local distant_from_character = client:DistanceFromCharacter(vec3_position)
             if on_screen and math.round(distant_from_character) <= self.max_distance then
-                print(value.esp_object.Parent.Name, client.TeamColor.Name, value.esp_object.Parent.Name ~= client.TeamColor.Name)
                 value.highlight.Enabled = true
                 value.highlight.FillColor = self.chams_color
-                value.highlight.FillTransparency = 1
+                value.highlight.FillTransparency = 0.5
             else
                 value.highlight.Enabled = false
             end
@@ -189,13 +195,7 @@ function esp_module.esp_core:update_chams()
         end
     end
 end
-function esp_module.esp_core:remove_esp(plr)
-    local t = self.esp_table[tostring(plr)];
-    if t ~= nil then
-        t:Destroy();
-        self.esp_table[tostring(plr)] = nil
-    end
-end
+
 
 function esp_module.esp_core:init() 
     util.misc:runLoop("ESP_Update", function()
@@ -207,9 +207,7 @@ function esp_module.esp_core:init()
     end, runService.RenderStepped)
 
     util.misc:runLoop("CHAMS_Update", function()
-        if self.chams then
-            self:update_chams()
-        end
+        self:update_chams()
     end, runService.RenderStepped)
 
     for _, v in pairs(players:GetPlayers()) do
@@ -220,12 +218,11 @@ function esp_module.esp_core:init()
         end
     end
 
-    for _, v in pairs(workspace.Players:GetChildren()) do
-        for _, v2 in pairs(v:GetChildren()) do
-            self:create_chams(v2)
-        end
-    end
-
+    for i, team in pairs(workspace.Players:GetChildren()) do
+		for i, player in pairs(team:GetChildren()) do
+			self:create_chams(player)
+		end
+	end
     players.PlayerAdded:Connect(function(plr)
         self:create_esp(plr)
     end)
