@@ -9,7 +9,7 @@ local aimbot = require("aimbot")
 local UILibrary = require("gui")
 
 function gui_init()
-    esp.esp_core:init()
+    esp:init()
     hitbox:init()
     aimbot:init()
 
