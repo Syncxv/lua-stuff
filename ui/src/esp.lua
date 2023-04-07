@@ -24,7 +24,9 @@ esp_module.esp_core = {
     distance = false,
     chams = false,
     tracers = false,
-    visible_check = false,
+    text_visible_check = false,
+    chams_visible_check = false,
+    tracer_visible_check = false,
     max_distance = 300,
     text_color = Color3.new(1, 0, 0),
     chams_color = Color3.new(1, 0, 0),
@@ -62,7 +64,7 @@ function esp_module.esp_core:create_esp(player)
         Tracer = Tracer
     }
 
-    function esp_instance:Show(name, dist, p1, p2)
+    function esp_instance:ShowAll(name, dist, p1, p2, p3)
         self.Name.Text = name
         self.Name.Position = p1
         self.Name.Visible = esp_module.esp_core.name and true
@@ -73,11 +75,37 @@ function esp_module.esp_core:create_esp(player)
 
         local BottomCenter = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y)
         self.Tracer.From = BottomCenter
+        self.Tracer.To = p3
+        self.Tracer.Visible = esp_module.esp_core.tracers and true
+    end
+
+    function esp_instance:ShowText(name, dist, p1, p2)
+        self.Name.Text = name
+        self.Name.Position = p1
+        self.Name.Visible = esp_module.esp_core.name and true
+
+        self.Dist.Text = dist
+        self.Dist.Position = p2
+        self.Dist.Visible = esp_module.esp_core.distance and true
+    end
+
+    function esp_instance:ShowTracer(p2)
+        local BottomCenter = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y)
+        self.Tracer.From = BottomCenter
         self.Tracer.To = p2
         self.Tracer.Visible = esp_module.esp_core.tracers and true
     end
     
-    function esp_instance:Hide()
+    function esp_instance:HideText()
+        self.Name.Visible = false
+        self.Dist.Visible = false
+    end
+
+    function esp_instance:HideTracer()
+        self.Tracer.Visible = false
+    end
+
+    function esp_instance:HideAll()
         self.Name.Visible = false
         self.Dist.Visible = false
         self.Tracer.Visible = false
@@ -90,7 +118,7 @@ function esp_module.esp_core:create_esp(player)
     end
     
     function esp_instance:Destroy()
-        self:Hide()
+        self:HideAll()
         self.Name:Remove()
         self.Dist:Remove()
         self.Tracer:Remove()
@@ -136,23 +164,40 @@ function esp_module.esp_core:update_esp(player)
         local body_parts = character:getCharacterHash()
         local head = body_parts.head
         local tor = body_parts.torso;
-        if head then
-            local v3, on_screen = camera:WorldToScreenPoint(head.Position)
-            local dist: number = (currPos - tor.Position).magnitude
-            if (on_screen and math.round(dist) <= self.max_distance and replicationObject.isAlive(entry))
-            then
-                if self.visible_check and not util.misc:is_visible(camera, client, head.Position, body_parts.head.Parent) then
-                    t:Hide()
-                    return
-                end
-                t:Show(tostring(player), string.format("%.0f", dist), Vector2.new(v3.X, v3.Y), Vector2.new(v3.X, v3.Y + 15))
-            else
-                t:Hide()
-            end
+        if not head then
+            t:HideAll()
+            return
+        end
+        
+        local v3, on_screen = camera:WorldToScreenPoint(head.Position)
+        local dist = (currPos - tor.Position).magnitude
+        
+        if not (on_screen and math.round(dist) <= self.max_distance and replicationObject.isAlive(entry)) then
+            t:HideAll()
+            return
+        end
+        
+        local visible = util.misc:is_visible(camera, client, head.Position, body_parts.head.Parent)
+        
+        local name = tostring(player)
+        local distance = string.format("%.0f", dist)
+        local name_pos = Vector2.new(v3.X, v3.Y)
+        local distance_pos = Vector2.new(v3.X, v3.Y + 15)
+        local tracer_pos = Vector2.new(v3.X, v3.Y)
+        
+        -- This is so bad
+        t:ShowAll(name, distance, name_pos, distance_pos, tracer_pos)
+        
+        if self.text_visible_check and not visible then
+            t:HideText()
+        end
+        
+        if self.tracer_visible_check and not visible then
+            t:HideTracer()
         end
     else
         if t ~= nil then
-            t:Hide()
+            t:HideAll()
         end
     end
     end)
@@ -180,7 +225,7 @@ function esp_module.esp_core:update_chams()
         and self.enabled
         and value.esp_object.Parent.Name ~= client.TeamColor.Name
         then
-            if self.visible_check then
+            if self.chams_visible_check then
                 value.highlight.DepthMode = Enum.HighlightDepthMode.Occluded
             else
                 value.highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
@@ -202,7 +247,7 @@ function esp_module.esp_core:update_chams()
 end
 
 
-function esp_module.esp_core:init() 
+function esp_module.esp_core:init()
     util.misc:runLoop("ESP_Update", function()
         if self.enabled then
             for i, v in pairs(players:GetPlayers()) do
@@ -282,8 +327,14 @@ function esp_module:gui_init(MainUI)
     local NameToggle = ESPPage.AddToggle("Show Name", self.esp_core.enabled, function(Value)
         self.esp_core.name = Value
     end)
-    local VisibleCheckToggle = ESPPage.AddToggle("Visible Check", self.esp_core.visible_check, function(Value)
-        self.esp_core.visible_check = Value
+    local TextVisibleCheckToggle = ESPPage.AddToggle("Text Visible Check", self.esp_core.text_visible_check, function(Value)
+        self.esp_core.text_visible_check = Value
+    end)
+    local ChamsVisibleCheckToggle = ESPPage.AddToggle("Chams Visible Check", self.esp_core.chams_visible_check, function(Value)
+        self.esp_core.chams_visible_check = Value
+    end)
+    local TracerVisibleCheckToggle = ESPPage.AddToggle("Tracer Visible Check", self.esp_core.tracer_visible_check, function(Value)
+        self.esp_core.tracer_visible_check = Value
     end)
     local MaxDistanceSlider = ESPPage.AddSlider("Max Distance", {Min = 0, Max = 2000, Def = self.esp_core.max_distance}, function(Value)
         self.esp_core.max_distance = Value

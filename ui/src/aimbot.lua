@@ -11,7 +11,7 @@ local id = hashgnaghehehhehehehehe .. math.random(1, 100000000)
 local AIMBOT_SETTINGS = {
     id = id,
     Enabled = true,
-    smoothness = 3,
+    smoothness = 2,
     FOV = 150,
     VisibleCheck = true,
     PredictBulletDrop = true,
@@ -297,14 +297,21 @@ function aimbot_module:gui_init(MainUI)
     local VisibleCheckToggle = AimbotPage.AddToggle("Visible Check", AIMBOT_SETTINGS.VisibleCheck, function(Value)
         AIMBOT_SETTINGS.VisibleCheck = Value
     end)
-    local VisibleCheckToggle = AimbotPage.AddToggle("Bullet Drop Prediction", AIMBOT_SETTINGS.VisibleCheck, function(Value)
+    local BulletDropToggle = AimbotPage.AddToggle("Bullet Drop Prediction", AIMBOT_SETTINGS.VisibleCheck, function(Value)
         AIMBOT_SETTINGS.PredictBulletDrop = Value
     end)
     local ShowFOV = AimbotPage.AddToggle("Show FOV", AIMBOT_SETTINGS.VisibleCheck, function(Value)
         circle.Visible = Value
     end)
-    local MaxDistanceSlider = AimbotPage.AddSlider("Smoothness", {Min = 1, Max = 20, Def = AIMBOT_SETTINGS.smoothness}, function(Value)
+    local SmoothnessSlider = AimbotPage.AddSlider("Smoothness", {Min = 1, Max = 20, Def = AIMBOT_SETTINGS.smoothness}, function(Value)
         AIMBOT_SETTINGS.smoothness = Value
+    end)
+    local FOVSlider = AimbotPage.AddSlider("FOV", {Min = 1, Max = 1300, Def = AIMBOT_SETTINGS.FOV}, function(Value)
+        AIMBOT_SETTINGS.FOV = Value
+    end)
+
+    local FOVColor = AimbotPage.AddColourPicker("FOV Color", circle.Color, function(Value)
+        circle.Color = Value
     end)
 
     AimbotPage.AddDropdown("Aim Key", util.keycodes.KeyNames, function(x)
