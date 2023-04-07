@@ -1,7 +1,7 @@
 
     -- collection of pf scripts in one ui
 	-- credits: https://github.com/Syncxv/lua-stuff/blob/master/README.md
-    -- 49fae438ad352da6f7d5a6f43b170d80f1b41ff6521f2fa43b366eafb8dc5d8f
+    -- 2ac5eb368a0ba0b2ac23eeea80e1921dc8e488f3d778d4650867b2477ab676eb
 
     syn.run_on_actor(getactors()[1], [[
         if not game:IsLoaded() then
@@ -895,7 +895,7 @@ end
 
 local util = util_module
 
-local id = "49fae438ad352da6f7d5a6f43b170d80f1b41ff6521f2fa43b366eafb8dc5d8f" .. math.random(1, 100000000)
+local id = "2ac5eb368a0ba0b2ac23eeea80e1921dc8e488f3d778d4650867b2477ab676eb" .. math.random(1, 100000000)
 local AIMBOT_SETTINGS = {
     id = id,
     Enabled = true,
@@ -918,21 +918,18 @@ local shared = getrenv().shared
 local camera = workspace.CurrentCamera
 local mouseLocation = UserInputService.GetMouseLocation
 local WorldToViewportPoint = camera.WorldToViewportPoint
-local ReplicationInterface = shared.require("ReplicationInterface");
-local PublicSettings = shared.require("PublicSettings");
-local Physics = shared.require("physics");
-local CameraInterface = shared.require("CameraInterface");
-local HudScreenGui = shared.require("HudScreenGui")
-local CurrentCamera = workspace.CurrentCamera
-local gameClock = shared.require("GameClock")
 
-local _size = 0.009259259259259259
+
 
 
 
 -- modules
 local replicationObject = shared.require("ReplicationObject")
 local replicationInterface = shared.require("ReplicationInterface")
+local publicSettings = shared.require("PublicSettings");
+local physics = shared.require("physics");
+local cameraInterface = shared.require("CameraInterface");
+local gameClock = shared.require("GameClock")
 
 local firearmObject = shared.require("FirearmObject")
 
@@ -940,6 +937,8 @@ if (_G.oldFirearmObject == nil) then
     _G.oldFirearmObject = firearmObject.new
 end
 
+-- only works for the first weapon XD
+-- ill figure something out soon (maybe)
 firearmObject.new = function(...)
     -- print(p1, p2);
     local res = _G.oldFirearmObject(...);
@@ -967,6 +966,14 @@ AimPoint.Transparency = 1
 AimPoint.Color = Color3.new(math.random(), math.random(), math.random())
 AimPoint.Visible = true
 
+local circle = Drawing.new("Circle")
+circle.Thickness = 2
+circle.NumSides = 12
+circle.Radius = 350
+circle.Filled = false
+circle.Transparency = 1
+circle.Color = Color3.new(math.random(), math.random(), math.random())
+circle.Visible = true
 -- functions
 
 local function GetDistance(to, from)
@@ -992,20 +999,20 @@ end
 local function get_bal_pos(player)
     local pos = nil;
     local trajectory = nil;
-    local activeCamera = CameraInterface.getActiveCamera("MainCamera")
+    local activeCamera = cameraInterface.getActiveCamera("MainCamera")
 
     local cameraPosition = activeCamera:getCFrame().p
-    local playerPosition, isPlayerPositionValid = ReplicationInterface.getEntry(player):getPosition()
+    local playerPosition, isPlayerPositionValid = replicationInterface.getEntry(player):getPosition()
 
     if isPlayerPositionValid then
-        trajectory = Physics.trajectory(cameraPosition, PublicSettings.bulletAcceleration, playerPosition,
+        trajectory = physics.trajectory(cameraPosition, publicSettings.bulletAcceleration, playerPosition,
         _G.firearmObject:getWeaponStat("bulletspeed"))
     end
     -- for i,v in pairs(v13) do print(i) end
     if trajectory then
         local hehe = cameraPosition + trajectory
-        print("BAL POS REAL = ", hehe)
-        pos = CurrentCamera:WorldToViewportPoint(hehe)
+        -- print("BAL POS REAL = ", hehe)
+        pos = camera:WorldToViewportPoint(hehe)
     end
 
 
@@ -1050,7 +1057,7 @@ local function get_prediction_pos(entry, character)
     -- "\n\n\n", "PREDICTED LOCATION = ", PredictedLocation, "\n\n\n", "CURRENT LOCATION = ", CurrentPosition,
     -- "\n\n\n------------\n\n\n")
 
-    return CurrentCamera:WorldToScreenPoint(PredictedLocation)
+    return camera:WorldToScreenPoint(PredictedLocation)
 end
 
 
@@ -1126,19 +1133,8 @@ local function aimAt(pos, smooth)
 
     mousemoverel(deltaX, deltaY)
 end
-local circle = Drawing.new("Circle")
-circle.Thickness = 2
-circle.NumSides = 12
-circle.Radius = 350
-circle.Filled = false
-circle.Transparency = 1
-circle.Color = Color3.new(math.random(), math.random(), math.random())
-circle.Visible = true
 
 function aimbot_module:init()
-
-    local margin = 20;
-    local screenWidth = game.Players.LocalPlayer:GetMouse().ViewSizeX
     util.misc:runLoop("AIMBOT_XD",function()
         if id ~= AIMBOT_SETTINGS.id then
             if circle.__OBJECT_EXISTS then
