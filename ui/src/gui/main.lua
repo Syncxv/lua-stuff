@@ -239,7 +239,7 @@ function gui_module.Load(GUITitle)
 	TitleButton.Size = UDim2.new(1,-20,1,0)
 	TitleButton.Parent = TitleBar
 	
-	MinimiseButton.MouseButton1Down:Connect(function()
+	function MinimizeMainframe()
 		MinimiseToggle = not MinimiseToggle
 		if not MinimiseToggle then
 			Tween(MainFrame, {Size = UDim2.new(1,-50,0,30)})
@@ -249,6 +249,13 @@ function gui_module.Load(GUITitle)
 			Tween(MainFrame, {Size = UDim2.new(1,-50,1,-30)})
 			Tween(MinimiseButton, {Rotation = 180})
 			Tween(ContainerShadow, {ImageTransparency = DropShadowTransparency})
+		end
+	end
+
+	MinimiseButton.MouseButton1Down:Connect(MinimizeMainframe)
+	UserInputService.InputBegan:Connect(function(input)
+		if input.KeyCode == Enum.KeyCode.P then
+			MinimizeMainframe()
 		end
 	end)
 	
