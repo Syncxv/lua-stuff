@@ -150,7 +150,7 @@ function esp_module.esp_core:update_esp(player)
     if currPos == nil then
         -- print("currPos is nil")
         if t ~= nil then
-            t:Hide();
+            t:HideAll();
         end
         return;
     end
