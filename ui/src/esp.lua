@@ -27,7 +27,7 @@ esp_module.esp_core = {
     text_visible_check = false,
     chams_visible_check = false,
     tracer_visible_check = false,
-    max_distance = 300,
+    max_distance = 1000,
     text_color = Color3.new(1, 0, 0),
     chams_color = Color3.new(1, 0, 0),
     tracer_color = Color3.new(1, 0, 0),
@@ -35,6 +35,7 @@ esp_module.esp_core = {
     chams_table = {}
 }
 
+-- Normal ESP
 function esp_module.esp_core:create_esp(player)
     local Name = Drawing.new("Text")
     Name.Text = tostring(player)
@@ -206,6 +207,7 @@ function esp_module.esp_core:update_esp(player)
     end
 end
 
+-- Chams
 function esp_module.esp_core:create_chams(wsPlayer)
     local newChams = Instance.new("Highlight", coreGui)
     newChams.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
@@ -217,6 +219,14 @@ function esp_module.esp_core:create_chams(wsPlayer)
         highlight = newChams,
         esp_object = wsPlayer
     }
+end
+
+function esp_module.esp_core:remove_chams(wsPlayer)
+    local t = self.chams_table[wsPlayer]
+    if t ~= nil then
+        t.highlight:Destroy()
+        self.chams_table[wsPlayer] = nil
+    end
 end
 function esp_module.esp_core:update_chams()
     for _, value in pairs(self.chams_table) do
@@ -250,7 +260,7 @@ end
 function esp_module.esp_core:init()
     util.misc:runLoop("ESP_Update", function()
         if self.enabled then
-            for i, v in pairs(players:GetPlayers()) do
+            for _, v in pairs(players:GetPlayers()) do
                 self:update_esp(v)
             end
         end
@@ -268,8 +278,8 @@ function esp_module.esp_core:init()
         end
     end
 
-    for i, team in pairs(workspace.Players:GetChildren()) do
-		for i, player in pairs(team:GetChildren()) do
+    for _, team in pairs(workspace.Players:GetChildren()) do
+		for _, player in pairs(team:GetChildren()) do
 			self:create_chams(player)
 		end
 	end
@@ -281,16 +291,13 @@ function esp_module.esp_core:init()
         self:remove_esp(plr)
     end)
 
-    for i, team in pairs(workspace.Players:GetChildren()) do
+    for _, team in pairs(workspace.Players:GetChildren()) do
         team.ChildAdded:Connect(function(wsPlayer)
             self:create_chams(wsPlayer)
         end)
 
         team.ChildRemoved:Connect(function(child)
-            if self.chams_table[child] then
-                self.chams_table[child].highlight:Destroy()
-                self.chams_table[child] = nil
-            end
+            self:remove_chams(child)
         end)
     end
 end
@@ -311,49 +318,49 @@ end
 function esp_module:gui_init(MainUI)
     local ESPPage = MainUI.AddPage("ESP")
 
-    local FirstLabel = ESPPage.AddLabel("ESP")
-    local ESPToggle = ESPPage.AddToggle("Enabled", self.esp_core.enabled, function(Value)
+    ESPPage.AddLabel("ESP")
+    ESPPage.AddToggle("Enabled", self.esp_core.enabled, function(Value)
         self.esp_core.enabled = Value
     end)
-    local ChamsToggle = ESPPage.AddToggle("Chams", self.esp_core.enabled, function(Value)
+    ESPPage.AddToggle("Chams", self.esp_core.enabled, function(Value)
         self.esp_core.chams = Value
     end)
-    local TracersToggle = ESPPage.AddToggle("Tracers", self.esp_core.enabled, function(Value)
+    ESPPage.AddToggle("Tracers", self.esp_core.enabled, function(Value)
         self.esp_core.tracers = Value
     end)
-    local DistanceToggle = ESPPage.AddToggle("Show Distance", self.esp_core.enabled, function(Value)
+    ESPPage.AddToggle("Show Distance", self.esp_core.enabled, function(Value)
         self.esp_core.distance = Value
     end)
-    local NameToggle = ESPPage.AddToggle("Show Name", self.esp_core.enabled, function(Value)
+    ESPPage.AddToggle("Show Name", self.esp_core.enabled, function(Value)
         self.esp_core.name = Value
     end)
-    local TextVisibleCheckToggle = ESPPage.AddToggle("Text Visible Check", self.esp_core.text_visible_check, function(Value)
+    ESPPage.AddToggle("Text Visible Check", self.esp_core.text_visible_check, function(Value)
         self.esp_core.text_visible_check = Value
     end)
-    local ChamsVisibleCheckToggle = ESPPage.AddToggle("Chams Visible Check", self.esp_core.chams_visible_check, function(Value)
+    ESPPage.AddToggle("Chams Visible Check", self.esp_core.chams_visible_check, function(Value)
         self.esp_core.chams_visible_check = Value
     end)
-    local TracerVisibleCheckToggle = ESPPage.AddToggle("Tracer Visible Check", self.esp_core.tracer_visible_check, function(Value)
+    ESPPage.AddToggle("Tracer Visible Check", self.esp_core.tracer_visible_check, function(Value)
         self.esp_core.tracer_visible_check = Value
     end)
-    local MaxDistanceSlider = ESPPage.AddSlider("Max Distance", {Min = 0, Max = 2000, Def = self.esp_core.max_distance}, function(Value)
+    ESPPage.AddSlider("Max Distance", {Min = 0, Max = 2000, Def = self.esp_core.max_distance}, function(Value)
         self.esp_core.max_distance = Value
     end)
-    local TextColor = ESPPage.AddColourPicker("Text Color", self.esp_core.text_color, function(Value)
+    ESPPage.AddColourPicker("Text Color", self.esp_core.text_color, function(Value)
         self.esp_core.text_color = Value
         for _, v in pairs(self.esp_core.esp_table) do
             v:SetColor(Value)
         end
     end)
 
-    local TracerColor = ESPPage.AddColourPicker("Tracer Color", self.esp_core.text_color, function(Value)
+    ESPPage.AddColourPicker("Tracer Color", self.esp_core.text_color, function(Value)
         self.esp_core.tracer_color = Value
         for _, v in pairs(self.esp_core.esp_table) do
             v.Tracer.Color = Value
         end
     end)
 
-    local ChamsColor = ESPPage.AddColourPicker("Chams Color", self.esp_core.chams_color, function(Value)
+    ESPPage.AddColourPicker("Chams Color", self.esp_core.chams_color, function(Value)
         self.esp_core.chams_color = Value
         for _, v in pairs(self.esp_core.chams_table) do
             v.highlight.FillColor = Value
