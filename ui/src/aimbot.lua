@@ -201,12 +201,15 @@ local function get_closest(fov)
                 local res = get_prediction_pos(entry, character) or body_parts.head.Position;
 
                 if AIMBOT_SETTINGS.PredictBulletDrop then
-                    local distance = GetDistance(get_current_pos(), body_parts.head.Position);
-                    local ballistic_pos = (get_bal_pos(player))
-                    if ballistic_pos then
-                        res = Vector2.new(res.X, ballistic_pos.Y - (ballistic_pos.Y - res.Y))
-                        print("\n\n", "BALLISTIC POS = ", ballistic_pos, "\n\n", "RES = ", res, "\n\n", "DISTANCE = ",
-                        distance, "\n\n")
+                    local currentPos = get_current_pos()
+                    if currentPos then
+                        local distance = GetDistance(currentPos, body_parts.head.Position);
+                        local ballistic_pos = (get_bal_pos(player))
+                        if ballistic_pos then
+                            res = Vector2.new(res.X, ballistic_pos.Y - (ballistic_pos.Y - res.Y))
+                            print("\n\n", "BALLISTIC POS = ", ballistic_pos, "\n\n", "RES = ", res, "\n\n", "DISTANCE = ",
+                            distance, "\n\n")
+                        end
                     end
                 end
                 targetPos = res;
