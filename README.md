@@ -34,7 +34,7 @@ X Visible means that it will only show if the player is visible to you if enable
 ## ESP
 ![esp settings 1](https://i.imgur.com/9pVTNvG.png)
 ![esp settings 2](https://i.imgur.com/9ITMmLE.png)
-![hehe](https://i.imgur.com/pyr9yte.png)
+![hehe](https://i.imgur.com/HJdQyrk.png)
 
 ## Hitbox Expander
 ![hitbox expander settings](https://i.imgur.com/koS7FVo.png)
