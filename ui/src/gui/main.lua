@@ -611,7 +611,7 @@ function gui_module.Load(GUITitle)
 			SliderForeground.Size = UDim2.new(1,0,1,0)
 			SliderForeground.Parent = SliderContainer
 			
-			local SliderButton = TextButton(Text..": "..Default)
+			local SliderButton = TextButton(Text..": "..string.format("%.2f", Default))
 			SliderButton.Size = UDim2.new(1,0,1,0)
 			SliderButton.ZIndex = 6
 			SliderButton.Parent = SliderForeground

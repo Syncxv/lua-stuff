@@ -1,7 +1,7 @@
 
     -- collection of pf scripts in one ui
 	-- credits: https://github.com/Syncxv/lua-stuff/blob/master/README.md
-    -- 6b73308dbf691942b33c0f9a05540d1680144c6eee062ed0c7eaad99d548e4b3
+    -- 1a4c384a81ee8508be8121c2d37b87339a3b6e9e8a4a72b06f7c656d05143e18
 
     syn.run_on_actor(getactors()[1], [[
         if not game:IsLoaded() then
@@ -889,14 +889,16 @@ end
 
 local util = util_module
 
-local id = "6b73308dbf691942b33c0f9a05540d1680144c6eee062ed0c7eaad99d548e4b3" .. math.random(1, 100000000)
+local id = "1a4c384a81ee8508be8121c2d37b87339a3b6e9e8a4a72b06f7c656d05143e18" .. math.random(1, 100000000)
 local AIMBOT_SETTINGS = {
     id = id,
-    Enabled = true,
-    smoothness = 2,
+    Enabled = false,
+    Smoothness = 2,
     FOV = 150,
-    VisibleCheck = true,
-    PredictBulletDrop = true,
+    ShowFOV = false,
+    VisibleCheck = false,
+    PredictMovement = false,
+    PredictBulletDrop = false,
     BulletDropToggleKey = util.keycodes.Keys.LAlt,
     Key = util.keycodes.Keys.RightBracket
 }
@@ -951,14 +953,14 @@ end;
 --ui stuff
 
 
-local AimPoint = Drawing.new("Circle")
-AimPoint.Thickness = 2
-AimPoint.NumSides = 12
-AimPoint.Radius = 2
-AimPoint.Filled = true
-AimPoint.Transparency = 1
-AimPoint.Color = Color3.new(math.random(), math.random(), math.random())
-AimPoint.Visible = true
+-- local AimPoint = Drawing.new("Circle")
+-- AimPoint.Thickness = 2
+-- AimPoint.NumSides = 12
+-- AimPoint.Radius = 2
+-- AimPoint.Filled = true
+-- AimPoint.Transparency = 1
+-- AimPoint.Color = Color3.new(math.random(), math.random(), math.random())
+-- AimPoint.Visible = false
 
 local circle = Drawing.new("Circle")
 circle.Thickness = 2
@@ -967,7 +969,7 @@ circle.Radius = 350
 circle.Filled = false
 circle.Transparency = 1
 circle.Color = Color3.new(math.random(), math.random(), math.random())
-circle.Visible = true
+circle.Visible = false
 -- functions
 
 local function GetDistance(to, from)
@@ -1087,7 +1089,12 @@ local function get_closest(fov)
                 and isVisible(body_parts.head.Position, body_parts.torso.Parent)
             then
                 magnitude = new_magnitude
-                local res = get_prediction_pos(entry, character) or body_parts.head.Position;
+                local res
+                if AIMBOT_SETTINGS.PredictMovement then
+                    res = get_prediction_pos(entry, character) or body_parts.head.Position;
+                else
+                    res = body_parts.head.Position;
+                end
 
                 if AIMBOT_SETTINGS.PredictBulletDrop then
                     local currentPos = get_current_pos()
@@ -1102,7 +1109,7 @@ local function get_closest(fov)
                     end
                 end
                 targetPos = res;
-                AimPoint.Position = Vector2.new(res.X, res.Y)
+                -- AimPoint.Position = Vector2.new(res.X, res.Y)
 
                 -- local pos = get_pos(player);
                 -- print("pos = ", pos);
@@ -1134,7 +1141,7 @@ function aimbot_module:init()
             if circle.__OBJECT_EXISTS then
                 print("stopping this instance of aimbot", id, AIMBOT_SETTINGS.id)
                 circle:Remove()
-                AimPoint:Remove()
+                -- AimPoint:Remove()
                 util.misc:destroyLoop("AIMBOT_XD")
             end
             return
@@ -1145,7 +1152,7 @@ function aimbot_module:init()
                 local _pos = get_closest(AIMBOT_SETTINGS.FOV)
                 if _pos then
                     -- print("pos = ", _pos)
-                    aimAt(_pos, AIMBOT_SETTINGS.smoothness)
+                    aimAt(_pos, AIMBOT_SETTINGS.Smoothness)
                 end
             end)
 
@@ -1154,56 +1161,61 @@ function aimbot_module:init()
             end
         end
         if circle.__OBJECT_EXISTS then
+            circle.Visible = AIMBOT_SETTINGS.Enabled and AIMBOT_SETTINGS.ShowFOV
             circle.Position = mouseLocation(UserInputService)
             circle.Radius = AIMBOT_SETTINGS.FOV
         end
     end, RunService.RenderStepped)
     
-    local uis = game:GetService("UserInputService")
+    -- my bullet drop prediction sucks man
+    -- local uis = game:GetService("UserInputService")
     
-    uis.InputBegan:Connect(function(input)
-        if (uis:GetFocusedTextBox() or id ~= AIMBOT_SETTINGS.id) then
-            return; -- make sure player's not chatting!
-        end
-        if input.KeyCode == Enum.KeyCode.LeftAlt then
-            AIMBOT_SETTINGS.PredictBulletDrop = not AIMBOT_SETTINGS.PredictBulletDrop
-        end
-    end)
+    -- uis.InputBegan:Connect(function(input)
+    --     if (uis:GetFocusedTextBox() or id ~= AIMBOT_SETTINGS.id) then
+    --         return; -- make sure player's not chatting!
+    --     end
+    --     if input.KeyCode == Enum.KeyCode.LeftAlt then
+    --         AIMBOT_SETTINGS.PredictBulletDrop = not AIMBOT_SETTINGS.PredictBulletDrop
+    --     end
+    -- end)
 end
 
 function aimbot_module:gui_init(MainUI)
     local AimbotPage = MainUI.AddPage("Aimbot")
 
-    local FirstLabel = AimbotPage.AddLabel("Aimbot Settings")
-    local ESPToggle = AimbotPage.AddToggle("Enabled", AIMBOT_SETTINGS.Enabled, function(Value)
+    AimbotPage.AddLabel("Aimbot Settings")
+    AimbotPage.AddToggle("Enabled", AIMBOT_SETTINGS.Enabled, function(Value)
         AIMBOT_SETTINGS.Enabled = Value
     end)
-    local VisibleCheckToggle = AimbotPage.AddToggle("Visible Check", AIMBOT_SETTINGS.VisibleCheck, function(Value)
+    AimbotPage.AddToggle("Visible Check", AIMBOT_SETTINGS.VisibleCheck, function(Value)
         AIMBOT_SETTINGS.VisibleCheck = Value
     end)
-    local BulletDropToggle = AimbotPage.AddToggle("Bullet Drop Prediction", AIMBOT_SETTINGS.VisibleCheck, function(Value)
+    AimbotPage.AddToggle("Predict Movement", AIMBOT_SETTINGS.VisibleCheck, function(Value)
+        AIMBOT_SETTINGS.PredictMovement = Value
+    end)
+    AimbotPage.AddToggle("Bullet Drop Prediction", AIMBOT_SETTINGS.VisibleCheck, function(Value)
         AIMBOT_SETTINGS.PredictBulletDrop = Value
     end)
-    local ShowFOV = AimbotPage.AddToggle("Show FOV", AIMBOT_SETTINGS.VisibleCheck, function(Value)
-        circle.Visible = Value
+    AimbotPage.AddToggle("Show FOV", AIMBOT_SETTINGS.VisibleCheck, function(Value)
+        AIMBOT_SETTINGS.ShowFOV = Value
     end)
-    local SmoothnessSlider = AimbotPage.AddSlider("Smoothness", {Min = 1, Max = 20, Def = AIMBOT_SETTINGS.smoothness}, function(Value)
-        AIMBOT_SETTINGS.smoothness = Value
+    AimbotPage.AddSlider("Smoothness", {Min = 1, Max = 20, Def = AIMBOT_SETTINGS.Smoothness}, function(Value)
+        AIMBOT_SETTINGS.Smoothness = Value
     end)
-    local FOVSlider = AimbotPage.AddSlider("FOV", {Min = 1, Max = 1300, Def = AIMBOT_SETTINGS.FOV}, function(Value)
+    AimbotPage.AddSlider("FOV", {Min = 1, Max = 1300, Def = AIMBOT_SETTINGS.FOV}, function(Value)
         AIMBOT_SETTINGS.FOV = Value
     end)
 
-    local FOVColor = AimbotPage.AddColourPicker("FOV Color", circle.Color, function(Value)
+    AimbotPage.AddColourPicker("FOV Color", circle.Color, function(Value)
         circle.Color = Value
     end)
 
     AimbotPage.AddDropdown("Aim Key", util.keycodes.KeyNames, function(x)
         AIMBOT_SETTINGS.Key = util.keycodes.Keys[x]
     end)
-    AimbotPage.AddDropdown("Bullet Drop Toggle Key", util.keycodes.KeyNames, function(x)
-        AIMBOT_SETTINGS.BulletDropToggleKey = util.keycodes.Keys[x]
-    end)
+    -- AimbotPage.AddDropdown("Bullet Drop Toggle Key", util.keycodes.KeyNames, function(x)
+    --     AIMBOT_SETTINGS.BulletDropToggleKey = util.keycodes.Keys[x]
+    -- end)
 end
 
 
@@ -1824,7 +1836,7 @@ function gui_module.Load(GUITitle)
 			SliderForeground.Size = UDim2.new(1,0,1,0)
 			SliderForeground.Parent = SliderContainer
 			
-			local SliderButton = TextButton(Text..": "..Default)
+			local SliderButton = TextButton(Text..": "..string.format("%.2f", Default))
 			SliderButton.Size = UDim2.new(1,0,1,0)
 			SliderButton.ZIndex = 6
 			SliderButton.Parent = SliderForeground
