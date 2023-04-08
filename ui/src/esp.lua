@@ -129,10 +129,10 @@ function esp_module:create_esp(player)
     self.esp_table[player] = esp_instance
 end
 function esp_module:remove_esp(plr)
-    local t = self.esp_table[tostring(plr)];
+    local t = self.esp_table[plr];
     if t ~= nil then
         t:Destroy();
-        self.esp_table[tostring(plr)] = nil
+        self.esp_table[plr] = nil
     end
 end
 

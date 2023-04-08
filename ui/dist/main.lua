@@ -1,7 +1,7 @@
 
     -- collection of pf scripts in one ui
 	-- credits: https://github.com/Syncxv/lua-stuff/blob/master/README.md
-    -- 6242f2253285ab305bdd5f93be65dc5da540b36d4b027960b9a04d7b5d201497
+    -- 6b73308dbf691942b33c0f9a05540d1680144c6eee062ed0c7eaad99d548e4b3
 
     syn.run_on_actor(getactors()[1], [[
         if not game:IsLoaded() then
@@ -403,10 +403,10 @@ function esp_module:create_esp(player)
     self.esp_table[player] = esp_instance
 end
 function esp_module:remove_esp(plr)
-    local t = self.esp_table[tostring(plr)];
+    local t = self.esp_table[plr];
     if t ~= nil then
         t:Destroy();
-        self.esp_table[tostring(plr)] = nil
+        self.esp_table[plr] = nil
     end
 end
 
@@ -889,7 +889,7 @@ end
 
 local util = util_module
 
-local id = "6242f2253285ab305bdd5f93be65dc5da540b36d4b027960b9a04d7b5d201497" .. math.random(1, 100000000)
+local id = "6b73308dbf691942b33c0f9a05540d1680144c6eee062ed0c7eaad99d548e4b3" .. math.random(1, 100000000)
 local AIMBOT_SETTINGS = {
     id = id,
     Enabled = true,
