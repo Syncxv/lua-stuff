@@ -1,7 +1,7 @@
 
     -- collection of pf scripts in one ui
 	-- credits: https://github.com/Syncxv/lua-stuff/blob/master/README.md
-    -- 2ac5eb368a0ba0b2ac23eeea80e1921dc8e488f3d778d4650867b2477ab676eb
+    -- 6242f2253285ab305bdd5f93be65dc5da540b36d4b027960b9a04d7b5d201497
 
     syn.run_on_actor(getactors()[1], [[
         if not game:IsLoaded() then
@@ -653,6 +653,8 @@ end
 local hitbox = {}
 do
 hitbox_module = {}
+--made by The3Bakers#4565
+--discord link https://discord.gg/vQQqcgBWCG
 local util = util_module
 
 local runService = game:GetService("RunService")
@@ -792,39 +794,31 @@ function hitbox_module:init()
     local uis = game:GetService("UserInputService")
 
     uis.InputBegan:Connect(function(input)
-        if (uis:GetFocusedTextBox()) then
-            return; -- make sure player's not chatting!
+        if uis:GetFocusedTextBox() then
+            return -- make sure player's not chatting!
         end
+    
         if input.KeyCode == Options.Key then
-            print("YOU CLICKED LEFT ALT ", Options.Target[1])
             if Options.Target[1] == "Head" then
-                print("Setting target to torso");
+                print("Setting target to torso")
                 Options.Target = { "Torso" }
-                TargetText.Text = Options.Target[1]
-                if Options.Enabled then
-                    ResetHB()
-                    for _, v in pairs(Options.Target) do
-                        UpdateHB(v, Options.Size)
-                    end
-                end
             else
-                print("Setting target to Head");
+                print("Setting target to Head")
                 Options.Target = { "Head" }
-                TargetText.Text = Options.Target[1]
-                if Options.Enabled then
-                    ResetHB()
-                    for _, v in pairs(Options.Target) do
-                        UpdateHB(v, Options.Size)
-                    end
+            end
+    
+            TargetText.Text = Options.Target[1]
+    
+            if Options.Enabled then
+                ResetHB()
+                for _, v in pairs(Options.Target) do
+                    UpdateHB(v, Options.Size)
                 end
             end
-            -- TargetDropDown:Refresh("Target", findIndex(GetR6Parts(true), Options.Target[1]), targetDropDownCallback);
+    
+            -- TargetDropDown:Refresh("Target", findIndex(GetR6Parts(true), Options.Target[1]), targetDropDownCallback)
             print("Final = ", Options.Target[1])
-
-
-
         end
-
     end)
 end
 --epic coasting ui lib
@@ -895,7 +889,7 @@ end
 
 local util = util_module
 
-local id = "2ac5eb368a0ba0b2ac23eeea80e1921dc8e488f3d778d4650867b2477ab676eb" .. math.random(1, 100000000)
+local id = "6242f2253285ab305bdd5f93be65dc5da540b36d4b027960b9a04d7b5d201497" .. math.random(1, 100000000)
 local AIMBOT_SETTINGS = {
     id = id,
     Enabled = true,

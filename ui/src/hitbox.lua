@@ -1,4 +1,6 @@
 hitbox_module = {}
+--made by The3Bakers#4565
+--discord link https://discord.gg/vQQqcgBWCG
 local util = require("util")
 
 local runService = game:GetService("RunService")
@@ -138,39 +140,31 @@ function hitbox_module:init()
     local uis = game:GetService("UserInputService")
 
     uis.InputBegan:Connect(function(input)
-        if (uis:GetFocusedTextBox()) then
-            return; -- make sure player's not chatting!
+        if uis:GetFocusedTextBox() then
+            return -- make sure player's not chatting!
         end
+    
         if input.KeyCode == Options.Key then
-            print("YOU CLICKED LEFT ALT ", Options.Target[1])
             if Options.Target[1] == "Head" then
-                print("Setting target to torso");
+                print("Setting target to torso")
                 Options.Target = { "Torso" }
-                TargetText.Text = Options.Target[1]
-                if Options.Enabled then
-                    ResetHB()
-                    for _, v in pairs(Options.Target) do
-                        UpdateHB(v, Options.Size)
-                    end
-                end
             else
-                print("Setting target to Head");
+                print("Setting target to Head")
                 Options.Target = { "Head" }
-                TargetText.Text = Options.Target[1]
-                if Options.Enabled then
-                    ResetHB()
-                    for _, v in pairs(Options.Target) do
-                        UpdateHB(v, Options.Size)
-                    end
+            end
+    
+            TargetText.Text = Options.Target[1]
+    
+            if Options.Enabled then
+                ResetHB()
+                for _, v in pairs(Options.Target) do
+                    UpdateHB(v, Options.Size)
                 end
             end
-            -- TargetDropDown:Refresh("Target", findIndex(GetR6Parts(true), Options.Target[1]), targetDropDownCallback);
+    
+            -- TargetDropDown:Refresh("Target", findIndex(GetR6Parts(true), Options.Target[1]), targetDropDownCallback)
             print("Final = ", Options.Target[1])
-
-
-
         end
-
     end)
 end
 --epic coasting ui lib
