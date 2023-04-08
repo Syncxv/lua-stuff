@@ -1,7 +1,7 @@
 
     -- collection of pf scripts in one ui
 	-- credits: https://github.com/Syncxv/lua-stuff/blob/master/README.md
-    -- 1a4c384a81ee8508be8121c2d37b87339a3b6e9e8a4a72b06f7c656d05143e18
+    -- e1327db5eeda71ff750d24308c3aeeeb2e1c5159e118290fec8a5d4511459e6d
 
     syn.run_on_actor(getactors()[1], [[
         if not game:IsLoaded() then
@@ -444,7 +444,7 @@ function esp_module:update_esp(player)
             return
         end
         
-        local v3, on_screen = camera:WorldToScreenPoint(head.Position)
+        local head_pos, on_screen = camera:WorldToScreenPoint(head.Position)
         local dist = (currPos - tor.Position).magnitude
         
         if not (on_screen and math.round(dist) <= self.max_distance and replicationObject.isAlive(entry)) then
@@ -456,9 +456,9 @@ function esp_module:update_esp(player)
         
         local name = tostring(player)
         local distance = string.format("%.0f", dist)
-        local name_pos = Vector2.new(v3.X, v3.Y)
-        local distance_pos = Vector2.new(v3.X, v3.Y + 15)
-        local tracer_pos = Vector2.new(v3.X, v3.Y)
+        local name_pos = Vector2.new(head_pos.X, head_pos.Y)
+        local distance_pos = Vector2.new(head_pos.X, head_pos.Y + 15)
+        local tracer_pos = Vector2.new(head_pos.X, head_pos.Y + 30)
         
         -- This is so bad
         t:ShowAll(name, distance, name_pos, distance_pos, tracer_pos)
@@ -889,7 +889,7 @@ end
 
 local util = util_module
 
-local id = "1a4c384a81ee8508be8121c2d37b87339a3b6e9e8a4a72b06f7c656d05143e18" .. math.random(1, 100000000)
+local id = "e1327db5eeda71ff750d24308c3aeeeb2e1c5159e118290fec8a5d4511459e6d" .. math.random(1, 100000000)
 local AIMBOT_SETTINGS = {
     id = id,
     Enabled = false,

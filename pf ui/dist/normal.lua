@@ -438,7 +438,7 @@ function esp_module:update_esp(player)
             return
         end
         
-        local v3, on_screen = camera:WorldToScreenPoint(head.Position)
+        local head_pos, on_screen = camera:WorldToScreenPoint(head.Position)
         local dist = (currPos - tor.Position).magnitude
         
         if not (on_screen and math.round(dist) <= self.max_distance and replicationObject.isAlive(entry)) then
@@ -450,9 +450,9 @@ function esp_module:update_esp(player)
         
         local name = tostring(player)
         local distance = string.format("%.0f", dist)
-        local name_pos = Vector2.new(v3.X, v3.Y)
-        local distance_pos = Vector2.new(v3.X, v3.Y + 15)
-        local tracer_pos = Vector2.new(v3.X, v3.Y)
+        local name_pos = Vector2.new(head_pos.X, head_pos.Y)
+        local distance_pos = Vector2.new(head_pos.X, head_pos.Y + 15)
+        local tracer_pos = Vector2.new(head_pos.X, head_pos.Y + 30)
         
         -- This is so bad
         t:ShowAll(name, distance, name_pos, distance_pos, tracer_pos)
