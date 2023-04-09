@@ -1,7 +1,7 @@
 
     -- collection of pf scripts in one ui
 	-- credits: https://github.com/Syncxv/lua-stuff/blob/master/README.md
-    -- e1327db5eeda71ff750d24308c3aeeeb2e1c5159e118290fec8a5d4511459e6d
+    -- e5eff73fa665f94e6dfce37ef47d31df606d6b3a606a3bea1b02116e8ca9cd1b
 
     syn.run_on_actor(getactors()[1], [[
         if not game:IsLoaded() then
@@ -295,15 +295,15 @@ end
 
 util = util_module
 end
+
 local camera = workspace.CurrentCamera
+
 local shared = getrenv().shared
 local replicationObject = shared.require("ReplicationObject")
 local replicationInterface = shared.require("ReplicationInterface")
-local gameClock = shared.require("GameClock")
 
 local runService = game:GetService("RunService")
 local players = game:GetService("Players")
-local localPlayer = players.LocalPlayer
 local client = game:GetService("Players").LocalPlayer
 local coreGui = game:GetService("CoreGui")
 
@@ -545,7 +545,7 @@ function esp_module:init()
     end, runService.RenderStepped)
 
     for _, v in pairs(players:GetPlayers()) do
-        if v ~= localPlayer then
+        if v ~= client then
             spawn(function()
                 self:create_esp(v)
             end)
@@ -889,7 +889,7 @@ end
 
 local util = util_module
 
-local id = "e1327db5eeda71ff750d24308c3aeeeb2e1c5159e118290fec8a5d4511459e6d" .. math.random(1, 100000000)
+local id = "e5eff73fa665f94e6dfce37ef47d31df606d6b3a606a3bea1b02116e8ca9cd1b" .. math.random(1, 100000000)
 local AIMBOT_SETTINGS = {
     id = id,
     Enabled = false,

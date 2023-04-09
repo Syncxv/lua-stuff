@@ -21,15 +21,15 @@ if _G.getesp ~= nil then
 end
 
 local util = require("util")
+
 local camera = workspace.CurrentCamera
+
 local shared = getrenv().shared
 local replicationObject = shared.require("ReplicationObject")
 local replicationInterface = shared.require("ReplicationInterface")
-local gameClock = shared.require("GameClock")
 
 local runService = game:GetService("RunService")
 local players = game:GetService("Players")
-local localPlayer = players.LocalPlayer
 local client = game:GetService("Players").LocalPlayer
 local coreGui = game:GetService("CoreGui")
 
@@ -271,7 +271,7 @@ function esp_module:init()
     end, runService.RenderStepped)
 
     for _, v in pairs(players:GetPlayers()) do
-        if v ~= localPlayer then
+        if v ~= client then
             spawn(function()
                 self:create_esp(v)
             end)
