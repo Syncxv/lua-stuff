@@ -21,7 +21,7 @@ most of it is pasted from the synapse x discord server
 - Text Color
 - Tracer Color
 
-X Visible means that it will only show if the player is visible to you if enabled.
+"X Visible Check" means that it will only show if the player is visible.
 
 ## Hitbox Expander
 
