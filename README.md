@@ -1,3 +1,5 @@
+most of it is pasted from the synapse x discord server
+
 # Features
 
 ## Aimbot
