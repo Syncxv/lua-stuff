@@ -1,7 +1,7 @@
 
     -- collection of pf scripts in one ui
 	-- credits: https://github.com/Syncxv/lua-stuff/blob/master/README.md
-    -- e5eff73fa665f94e6dfce37ef47d31df606d6b3a606a3bea1b02116e8ca9cd1b
+    -- 6d75e4c69b069ce1776a548f9c67dc7e930598ec197c79a177081d3a78aff9ed
 
     syn.run_on_actor(getactors()[1], [[
         if not game:IsLoaded() then
@@ -646,8 +646,6 @@ function _G.getesp()
     return esp_module
 end
 
-print(util.base64.decode("c3luLnJ1bl9vbl9hY3RvcihnZXRhY3RvcnMoKVsxXSwgW1sKCnByaW50KF9HLmdldGVzcCgpLmRlc3Ryb3koKSkKCl1dKQ=="))
-
 esp = esp_module
 end
 local hitbox = {}
@@ -889,7 +887,7 @@ end
 
 local util = util_module
 
-local id = "e5eff73fa665f94e6dfce37ef47d31df606d6b3a606a3bea1b02116e8ca9cd1b" .. math.random(1, 100000000)
+local id = "6d75e4c69b069ce1776a548f9c67dc7e930598ec197c79a177081d3a78aff9ed" .. math.random(1, 100000000)
 local AIMBOT_SETTINGS = {
     id = id,
     Enabled = false,
