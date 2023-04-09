@@ -1641,22 +1641,31 @@ function gui_module.Load(GUITitle)
 			end)
 		end
 		
-		function PageLibrary.AddLabel(Text)
+		function PageLibrary.AddLabel(Text, FontSize, TextColor)
 			local LabelContainer = Frame()
 			LabelContainer.Name = Text.."LABEL"
-			LabelContainer.Size = UDim2.new(1,0,0,20)
+			LabelContainer.Size = UDim2.new(1, 0, 0, 20) -- Adjust the width to be 100%
 			LabelContainer.BackgroundTransparency = 1
 			LabelContainer.Parent = DisplayPage
 			
 			local LabelForeground = RoundBox(5)
 			LabelForeground.Name = "LabelForeground"
 			LabelForeground.ImageColor3 = Color3.fromRGB(45,45,45)
-			LabelForeground.Size = UDim2.new(1,0,1,0)
+			LabelForeground.Size = UDim2.new(1, 0, 1, 0) -- Make the width match the LabelContainer
 			LabelForeground.Parent = LabelContainer
 			
-			local HiddenLabel = TextLabel(Text, 12)
+			local HiddenLabel = TextLabel(Text, FontSize or 12)
 			HiddenLabel.Parent = LabelForeground
+			HiddenLabel.TextColor3 = TextColor or Color3.fromRGB(255,255,255)
+		
+			-- Update height of the LabelContainer
+			local textBounds = HiddenLabel.TextBounds
+			local paddingY = 4 -- Vertical padding
+		
+			LabelContainer.Size = UDim2.new(1, 0, 0, textBounds.Y + paddingY) -- Update only the height
 		end
+		
+		
 		
 		function PageLibrary.AddDropdown(Text, ConfigurationArray, Callback)
 			local DropdownArray = ConfigurationArray or {}
@@ -1938,5 +1947,20 @@ function gui_init()
     aimbot:gui_init(MainUI)
     esp:gui_init(MainUI)
     hitbox:gui_init(MainUI)
+    
+    local CreditsPage = MainUI.AddPage("Credits")
+
+    CreditsPage.AddLabel("https://github.com/Syncxv/lua-stuff/tree/master/pf%20ui#credits", 10)
+
+    CreditsPage.AddLabel("Aimbot", 14, Color3.new(1,0,0))
+    CreditsPage.AddLabel("No idea#7972 (773953647289565204)")
+    CreditsPage.AddLabel("me Aria#8171 (549244932213309442)")
+    CreditsPage.AddLabel("Hitbox Expander",14, Color3.new(1,0,0))
+    CreditsPage.AddLabel("The3Bakers#4565 https://discord.gg/vQQqcgBWCG")
+    CreditsPage.AddLabel("me Aria#8171 (549244932213309442)")
+    CreditsPage.AddLabel("ESP", 14, Color3.new(1,0,0))
+    CreditsPage.AddLabel("me Aria#8171 (549244932213309442)")
+    CreditsPage.AddLabel("Racist Dolphin")
+    CreditsPage.AddLabel("No idea#7972 (773953647289565204)")
 end
 gui_init()

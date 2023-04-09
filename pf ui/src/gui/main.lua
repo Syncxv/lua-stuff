@@ -424,22 +424,31 @@ function gui_module.Load(GUITitle)
 			end)
 		end
 		
-		function PageLibrary.AddLabel(Text)
+		function PageLibrary.AddLabel(Text, FontSize, TextColor)
 			local LabelContainer = Frame()
 			LabelContainer.Name = Text.."LABEL"
-			LabelContainer.Size = UDim2.new(1,0,0,20)
+			LabelContainer.Size = UDim2.new(1, 0, 0, 20) -- Adjust the width to be 100%
 			LabelContainer.BackgroundTransparency = 1
 			LabelContainer.Parent = DisplayPage
 			
 			local LabelForeground = RoundBox(5)
 			LabelForeground.Name = "LabelForeground"
 			LabelForeground.ImageColor3 = Color3.fromRGB(45,45,45)
-			LabelForeground.Size = UDim2.new(1,0,1,0)
+			LabelForeground.Size = UDim2.new(1, 0, 1, 0) -- Make the width match the LabelContainer
 			LabelForeground.Parent = LabelContainer
 			
-			local HiddenLabel = TextLabel(Text, 12)
+			local HiddenLabel = TextLabel(Text, FontSize or 12)
 			HiddenLabel.Parent = LabelForeground
+			HiddenLabel.TextColor3 = TextColor or Color3.fromRGB(255,255,255)
+		
+			-- Update height of the LabelContainer
+			local textBounds = HiddenLabel.TextBounds
+			local paddingY = 4 -- Vertical padding
+		
+			LabelContainer.Size = UDim2.new(1, 0, 0, textBounds.Y + paddingY) -- Update only the height
 		end
+		
+		
 		
 		function PageLibrary.AddDropdown(Text, ConfigurationArray, Callback)
 			local DropdownArray = ConfigurationArray or {}
