@@ -18,6 +18,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 <br />
 most of it is pasted from the synapse x discord server
+<br />
+<br />
+execute this in the menu
+
+```lua
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Syncxv/lua-stuff/master/pf%20ui/dist/main.lua"))()
+```
 
 # Features
 
