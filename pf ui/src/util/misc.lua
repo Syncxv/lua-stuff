@@ -48,7 +48,7 @@ function misc_module:stopLoop(name) -- This is a function that stops a loop.
 end
 function misc_module:destroyLoop(name) -- This is a function that destroies a loop.
     if self.loops[name] ~= nil then
-        self.loops[name].Destroy = false
+        self.loops[name].Destroy = true
     end
 end
 
