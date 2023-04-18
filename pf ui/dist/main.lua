@@ -1,7 +1,7 @@
 
     -- collection of pf scripts in one ui
 	-- credits: https://github.com/Syncxv/lua-stuff/blob/master/README.md
-    -- 198ef1a180ee226497eb71de10f3696fccaabf513662da6efd5c7388efc2f152
+    -- 7ca74e224c3d77295f271a2d3efe7e4f276cfa03e6097d23f2105184b35bfa51
 
     syn.run_on_actor(getactors()[1], [[
         if not game:IsLoaded() then
@@ -887,7 +887,7 @@ end
 
 local util = util_module
 
-local id = "198ef1a180ee226497eb71de10f3696fccaabf513662da6efd5c7388efc2f152" .. math.random(1, 100000000)
+local id = "7ca74e224c3d77295f271a2d3efe7e4f276cfa03e6097d23f2105184b35bfa51" .. math.random(1, 100000000)
 local AIMBOT_SETTINGS = {
     id = id,
     Enabled = false,
@@ -1465,7 +1465,7 @@ function gui_module.Load(GUITitle)
 	local function MinimizeMainframe()
 		MinimiseToggle = not MinimiseToggle
 		if not MinimiseToggle then
-			Tween(MainFrame, {Size = UDim2.new(1,-50,0,30)})
+			Tween(MainFrame, {Size = UDim2.new(1,0,0,0)})
 			Tween(MinimiseButton, {Rotation = 0})
 			Tween(ContainerShadow, {ImageTransparency = 1})
 		else
@@ -1954,6 +1954,7 @@ function gui_init()
     esp:gui_init(MainUI)
     hitbox:gui_init(MainUI)
     
+    -- ill make it better later (maybe)
     local CreditsPage = MainUI.AddPage("Credits")
 
     CreditsPage.AddLabel("https://github.com/Syncxv/lua-stuff/tree/master/pf%20ui#credits", 10)

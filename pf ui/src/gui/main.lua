@@ -242,7 +242,7 @@ function gui_module.Load(GUITitle)
 	local function MinimizeMainframe()
 		MinimiseToggle = not MinimiseToggle
 		if not MinimiseToggle then
-			Tween(MainFrame, {Size = UDim2.new(1,-50,0,30)})
+			Tween(MainFrame, {Size = UDim2.new(1,0,0,0)})
 			Tween(MinimiseButton, {Rotation = 0})
 			Tween(ContainerShadow, {ImageTransparency = 1})
 		else

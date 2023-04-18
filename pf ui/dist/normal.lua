@@ -1459,7 +1459,7 @@ function gui_module.Load(GUITitle)
 	local function MinimizeMainframe()
 		MinimiseToggle = not MinimiseToggle
 		if not MinimiseToggle then
-			Tween(MainFrame, {Size = UDim2.new(1,-50,0,30)})
+			Tween(MainFrame, {Size = UDim2.new(1,0,0,0)})
 			Tween(MinimiseButton, {Rotation = 0})
 			Tween(ContainerShadow, {ImageTransparency = 1})
 		else
@@ -1948,6 +1948,7 @@ function gui_init()
     esp:gui_init(MainUI)
     hitbox:gui_init(MainUI)
     
+    -- ill make it better later (maybe)
     local CreditsPage = MainUI.AddPage("Credits")
 
     CreditsPage.AddLabel("https://github.com/Syncxv/lua-stuff/tree/master/pf%20ui#credits", 10)
